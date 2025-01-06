@@ -11,30 +11,23 @@ function App() {
   useEffect(() => {
     const data: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: { price: 150000 },
-          geometry: { type: 'Point', coordinates: [20.4568, 44.8125] }, // Beograd
+      features: Array.from({ length: 3500 }, (_, index) => ({
+        type: 'Feature',
+        properties: {
+          price: index < 20 
+            ? Math.floor(Math.random() * 5000000) + 1000000 // Larger prices: 1,000,000 to 5,000,000
+            : Math.floor(Math.random() * 500000) + 1000    // Regular prices: 1,000 to 500,000
         },
-        {
-          type: 'Feature',
-          properties: { price: 300000 },
-          geometry: { type: 'Point', coordinates: [20.4600, 44.8200] }, // Druga lokacija
-        },
-        {
-          type: 'Feature',
-          properties: { price: 50000 },
-          geometry: { type: 'Point', coordinates: [20.4500, 44.8100] }, // Treća lokacija
-        },
-        {
-          type: 'Feature',
-          properties: { price: 250000 },
-          geometry: { type: 'Point', coordinates: [20.4700, 44.8000] }, // Četvrta lokacija
-        },
-      ],
+        geometry: {
+          type: 'Point',
+          coordinates: [
+            parseFloat((Math.random() * (40 - (-25)) + (-25)).toFixed(6)), // Longitude between -25 and 40 (Europe)
+            parseFloat((Math.random() * (72 - 34) + 34).toFixed(6))       // Latitude between 34 and 72 (Europe)
+          ]
+        }
+        
+      }))
     };
-
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/dark-v11',
@@ -62,7 +55,7 @@ function App() {
             1,
             'rgb(178,24,43)',
           ],
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 80, 100, 150, 250],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 20, 20, 150, 250],
         },
       });
 
