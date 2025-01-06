@@ -1,12 +1,15 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Search, Menu, X, Home, DollarSign, Filter } from 'lucide-react';
+import FiltersSidebar from './components/FiltersSidebar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const data: GeoJSON.FeatureCollection = {
@@ -15,51 +18,49 @@ function App() {
         type: 'Feature',
         properties: {
           price: index < 20 
-            ? Math.floor(Math.random() * 5000000) + 1000000 // Larger prices: 1,000,000 to 5,000,000
-            : Math.floor(Math.random() * 500000) + 1000    // Regular prices: 1,000 to 500,000
+            ? Math.floor(Math.random() * 5000000) + 1000000
+            : Math.floor(Math.random() * 500000) + 1000
         },
         geometry: {
           type: 'Point',
           coordinates: [
-            parseFloat((Math.random() * (40 - (-25)) + (-25)).toFixed(6)), // Longitude between -25 and 40 (Europe)
-            parseFloat((Math.random() * (72 - 34) + 34).toFixed(6))       // Latitude between 34 and 72 (Europe)
+            parseFloat((Math.random() * (40 - (-25)) + (-25)).toFixed(6)),
+            parseFloat((Math.random() * (72 - 34) + 34).toFixed(6))
           ]
         }
-        
       }))
     };
+
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [20.4568, 44.8125],
-      zoom: 12,
+      zoom: 4,
     });
 
     map.current.on('load', () => {
-      // Dodavanje izvora podataka
       map.current?.addSource('realEstate', { type: 'geojson', data });
 
-      // Heatmap sloj
       map.current?.addLayer({
         id: 'realEstate-heat',
         type: 'heatmap',
         source: 'realEstate',
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'price'], 50000, 0, 300000, 1],
+          'heatmap-weight': ['interpolate', ['linear'], ['get', 'price'], 10000, 0, 1500000, 1],
           'heatmap-color': [
             'interpolate',
             ['linear'],
             ['heatmap-density'],
-            0,
-            'rgba(33,102,172,0)',
-            1,
-            'rgb(178,24,43)',
+            0, 'rgba(33,102,172,0)',
+            0.25, 'rgb(103,169,207)',
+            0.5, 'rgb(209,229,240)',
+            0.75, 'rgb(253,219,199)',
+            1, 'rgb(178,24,43)',
           ],
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 20, 20, 150, 250],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 20, 60, 150, 450],
         },
       });
 
-      // Sloj sa tačkama iznad heatmape
       map.current?.addLayer({
         id: 'realEstate-points',
         type: 'circle',
@@ -72,7 +73,6 @@ function App() {
         },
       });
 
-      // Interakcija sa tačkama
       map.current?.on('click', 'realEstate-points', (e) => {
         const features = e.features as GeoJSONFeature[];
         const coordinates = features[0].geometry.coordinates.slice();
@@ -97,9 +97,31 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen w-full">
-      <span className="text-3xl block p-4">Mapa Nekretnina</span>
-      <div ref={mapContainer} className="w-full h-[calc(100%-4rem)]" />
+    <div className="h-screen w-full bg-gray-900 relative">
+      {/* Search Bar */}
+      <div className="absolute top-4 left-4 z-10">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Enter a city name"
+            className="w-64 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 pl-10"
+          />
+          <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+        </div>
+      </div>
+
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="absolute top-4 right-4 z-20 bg-gray-800 p-2 rounded-lg text-white hover:bg-gray-700"
+      >
+        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Sidebar */}
+      <FiltersSidebar  />
+      {/* Map Container */}
+      <div ref={mapContainer} className="w-full h-full" />
     </div>
   );
 }
