@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Search, Menu, X, Home, DollarSign, Filter } from 'lucide-react';
-import FiltersSidebar from './components/FiltersSidebar';
+import { FiltersSidebar } from './components/FiltersSidebar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
@@ -119,7 +119,7 @@ function App() {
       </button>
 
       {/* Sidebar */}
-      <FiltersSidebar  />
+      <FiltersSidebar isSidebarOpen={isSidebarOpen} />
       {/* Map Container */}
       <div ref={mapContainer} className="w-full h-full" />
     </div>
