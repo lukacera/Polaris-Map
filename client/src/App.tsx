@@ -19,7 +19,13 @@ function App() {
         properties: {
           price: index < 20 
             ? Math.floor(Math.random() * 5000000) + 1000000
-            : Math.floor(Math.random() * 500000) + 1000
+            : Math.floor(Math.random() * 500000) + 1000,
+          type: ['Stan', 'Kuća', 'Poslovni prostor'][Math.floor(Math.random() * 3)],
+          size: Math.floor(Math.random() * 150) + 30,
+          rooms: Math.floor(Math.random() * 4) + 1,
+          yearBuilt: Math.floor(Math.random() * 50) + 1970,
+          energyClass: ['A', 'B', 'C', 'D', 'E', 'F'][Math.floor(Math.random() * 6)],
+          status: ['Na prodaju', 'Izdavanje'][Math.floor(Math.random() * 2)]
         },
         geometry: {
           type: 'Point',
@@ -51,12 +57,12 @@ function App() {
             'interpolate',
             ['linear'],
             ['heatmap-density'],
-            0, 'rgba(33,102,172,0)',
-            0.25, 'rgb(103,169,207)',
-            0.5, 'rgb(209,229,240)',
-            0.75, 'rgb(253,219,199)',
-            1, 'rgb(178,24,43)',
-          ],
+            0, 'rgba(255,255,0,0)',      
+            0.25, 'rgba(255,255,0,0.6)',
+            0.5, 'rgba(255,204,0,0.8)',
+            0.75, 'rgba(255,102,0,1)',
+            1, 'rgba(255,0,0,1)',       
+          ],          
           'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 20, 60, 150, 450],
         },
       });

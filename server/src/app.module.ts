@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DataPointModule } from './data-points/data-point.module';
+import { PropertyModule } from './property/property.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URL),
-    DataPointModule,
+    PropertyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
