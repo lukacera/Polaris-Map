@@ -67,10 +67,3 @@ export class Property {
 
 export type PropertyDocument = Property & Document;
 export const PropertySchema = SchemaFactory.createForClass(Property);
-
-// Dodavanje indeksa
-PropertySchema.index({ geometry: '2dsphere' });
-PropertySchema.index({ price: 1 });
-PropertySchema.index({ type: 1 });
-PropertySchema.index({ status: 1 });
-PropertySchema.index({ size: 1 });
