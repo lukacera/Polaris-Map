@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
@@ -20,12 +20,9 @@ function App() {
           price: index < 20 
             ? Math.floor(Math.random() * 5000000) + 1000000
             : Math.floor(Math.random() * 500000) + 1000,
-          type: ['Stan', 'Kuća', 'Poslovni prostor'][Math.floor(Math.random() * 3)],
           size: Math.floor(Math.random() * 150) + 30,
           rooms: Math.floor(Math.random() * 4) + 1,
           yearBuilt: Math.floor(Math.random() * 50) + 1970,
-          energyClass: ['A', 'B', 'C', 'D', 'E', 'F'][Math.floor(Math.random() * 6)],
-          status: ['Na prodaju', 'Izdavanje'][Math.floor(Math.random() * 2)]
         },
         geometry: {
           type: 'Point',
@@ -36,37 +33,62 @@ function App() {
         }
       }))
     };
-
+  
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [20.4568, 44.8125],
       zoom: 4,
     });
-
+  
     map.current.on('load', () => {
       map.current?.addSource('realEstate', { type: 'geojson', data });
-
+  
       map.current?.addLayer({
         id: 'realEstate-heat',
         type: 'heatmap',
         source: 'realEstate',
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'price'], 10000, 0, 1500000, 1],
+          'heatmap-weight': [
+            'interpolate',
+            ['linear'],
+            ['get', 'price'],
+            10000, 0,
+            100000, 0.2,
+            500000, 0.4,
+            1000000, 0.7,
+            5000000, 1
+          ],
           'heatmap-color': [
             'interpolate',
             ['linear'],
             ['heatmap-density'],
-            0, 'rgba(255,255,0,0)',      
-            0.25, 'rgba(255,255,0,0.6)',
-            0.5, 'rgba(255,204,0,0.8)',
-            0.75, 'rgba(255,102,0,1)',
-            1, 'rgba(255,0,0,1)',       
-          ],          
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 20, 60, 150, 450],
+            0, 'rgba(0, 0, 255, 0)',
+            0.1, 'rgba(0, 153, 255, 0.6)',
+            0.3, 'rgba(51, 204, 102, 0.8)',
+            0.6, 'rgba(255, 204, 0, 0.8)',
+            0.8, 'rgba(255, 102, 0, 1)',
+            1, 'rgba(204, 0, 0, 1)'
+          ],
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 5,
+            8, 150,
+            12, 300,
+            16, 600
+          ],
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 0.7,
+            10, 0.4
+          ],
         },
       });
-
+  
       map.current?.addLayer({
         id: 'realEstate-points',
         type: 'circle',
@@ -78,29 +100,46 @@ function App() {
           'circle-stroke-color': '#FFFFFF',
         },
       });
-
+  
+      let hideTimeout: number | null = null;
+  
+      // Listen to zoom events
+      map.current?.on('zoomstart', () => {
+        map.current?.setLayoutProperty('realEstate-heat', 'visibility', 'none');
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+        }
+      });
+  
+      map.current?.on('zoomend', () => {
+        hideTimeout = setTimeout(() => {
+          map.current?.setLayoutProperty('realEstate-heat', 'visibility', 'visible');
+        }, 1000); // 1-second delay
+      });
+  
       map.current?.on('click', 'realEstate-points', (e) => {
         const features = e.features as GeoJSONFeature[];
         const coordinates = features[0].geometry.coordinates.slice();
         const { price } = features[0].properties as { price: number };
-
+  
         new mapboxgl.Popup()
           .setLngLat(coordinates as [number, number])
           .setHTML(`<strong>Cena:</strong> ${price.toLocaleString('sr-RS')} €`)
           .addTo(map.current!);
       });
-
+  
       map.current?.on('mouseenter', 'realEstate-points', () => {
         map.current!.getCanvas().style.cursor = 'pointer';
       });
-
+  
       map.current?.on('mouseleave', 'realEstate-points', () => {
         map.current!.getCanvas().style.cursor = '';
       });
     });
-
+  
     return () => map.current?.remove();
   }, []);
+  
 
   return (
     <div className="h-screen w-full relative font-poppins">

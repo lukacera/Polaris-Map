@@ -30,7 +30,7 @@ export class Property {
   @Prop({ 
     required: true, 
     type: String,
-    enum: ['Condo', 'House']
+    enum: ['Apartment', 'House']
   })
   type: string;
 
