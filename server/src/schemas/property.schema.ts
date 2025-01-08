@@ -46,14 +46,7 @@ export class Property {
   @Prop({ 
     required: true, 
     type: String,
-    enum: ['A', 'B', 'C', 'D', 'E', 'F']
-  })
-  energyClass: string;
-
-  @Prop({ 
-    required: true, 
-    type: String,
-    enum: ['Na prodaju', 'Izdavanje']
+    enum: ['Buy', 'Rent']
   })
   status: string;
 

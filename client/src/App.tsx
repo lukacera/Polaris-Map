@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Search, Menu, X, Home, DollarSign, Filter } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
@@ -103,29 +103,39 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen w-full bg-gray-900 relative">
+    <div className="h-screen w-full relative font-poppins">
       {/* Search Bar */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10 flex items-center space-x-4">
         <div className="relative">
           <input
             type="text"
             placeholder="Enter a city name"
-            className="w-64 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 pl-10"
+            className="w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border 
+            border-background focus:outline-none focus:border-blue-500 pl-10 shadow-lg"
           />
           <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
         </div>
+        <button
+          className="px-4 py-2 bg-accent text-white shadow-lg
+          rounded-lg hover:bg-accent-hover transition-colors duration-200 
+          flex items-center space-x-2 font-medium"
+        >
+          Add review
+        </button>
       </div>
 
       {/* Sidebar Toggle Button */}
+      {!isSidebarOpen && (
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="absolute top-4 right-4 z-20 bg-gray-800 p-2 rounded-lg text-white hover:bg-gray-700"
+        className="absolute top-4 right-4 z-20 
+        bg-gray-800 p-2 rounded-lg text-white hover:bg-gray-700"
       >
-        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        <Menu size={24} />
       </button>
-
+      )}
       {/* Sidebar */}
-      <FiltersSidebar isSidebarOpen={isSidebarOpen} />
+      <FiltersSidebar isSidebarOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
       {/* Map Container */}
       <div ref={mapContainer} className="w-full h-full" />
     </div>

@@ -8,6 +8,6 @@ export class PropertyController {
 
   @Get()
   async getAllProperties(): Promise<Property[]> {
-    return this.propertyService.getAllProperties(); // Poziva metod iz servisa
+    return this.propertyService.getAllProperties();
   }
 }
