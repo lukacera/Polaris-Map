@@ -40,7 +40,28 @@ function App() {
       center: [20.4568, 44.8125],
       zoom: 4,
     });
-  
+
+    map.current.on('moveend', () => {
+      const visibleFeatures = map.current?.querySourceFeatures('realEstate');
+      if (!visibleFeatures?.length) return;
+      
+      const prices = visibleFeatures.map(f => f.properties.price);
+      console.log(visibleFeatures)
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      
+      map.current?.setPaintProperty('realEstate-heat', 'heatmap-weight', [
+        'interpolate',
+        ['linear'],
+        ['get', 'price'],
+        minPrice, 0.3,
+        maxPrice * 0.25, 0.4,
+        maxPrice * 0.5, 0.6,
+        maxPrice * 0.75, 0.8,
+        maxPrice, 1
+      ]);
+    });
+    
     map.current.on('load', () => {
       map.current?.addSource('realEstate', { type: 'geojson', data });
   
@@ -53,22 +74,22 @@ function App() {
             'interpolate',
             ['linear'],
             ['get', 'price'],
-            10000, 0,
-            100000, 0.2,
-            500000, 0.4,
-            1000000, 0.7,
+            1000, 0.3,
+            100000, 0.4,
+            500000, 0.6,
+            1000000, 0.8,
             5000000, 1
           ],
           'heatmap-color': [
-            'interpolate',
-            ['linear'],
-            ['heatmap-density'],
-            0, 'rgba(0, 0, 255, 0)',
-            0.1, 'rgba(0, 153, 255, 0.6)',
-            0.3, 'rgba(51, 204, 102, 0.8)',
-            0.6, 'rgba(255, 204, 0, 0.8)',
-            0.8, 'rgba(255, 102, 0, 1)',
-            1, 'rgba(204, 0, 0, 1)'
+              'interpolate',
+              ['linear'],
+              ['heatmap-density'],
+              0, 'rgba(255, 255, 0, 0)', // Žuta (transparentna)
+              0.2, 'rgba(255, 255, 0, 0.6)', // Svetlo žuta
+              0.4, 'rgba(255, 200, 0, 0.7)', // Zlatno žuta
+              0.6, 'rgba(255, 140, 0, 0.8)', // Narandžasta
+              0.8, 'rgba(255, 69, 0, 0.9)', // Tamna narandžasta
+              1, 'rgba(255, 0, 0, 1)' // Crvena
           ],
           'heatmap-radius': [
             'interpolate',
@@ -88,7 +109,7 @@ function App() {
           ],
         },
       });
-  
+
       map.current?.addLayer({
         id: 'realEstate-points',
         type: 'circle',
@@ -114,7 +135,7 @@ function App() {
       map.current?.on('zoomend', () => {
         hideTimeout = setTimeout(() => {
           map.current?.setLayoutProperty('realEstate-heat', 'visibility', 'visible');
-        }, 1000); // 1-second delay
+        }, 500); // 1-second delay
       });
   
       map.current?.on('click', 'realEstate-points', (e) => {
@@ -139,7 +160,6 @@ function App() {
   
     return () => map.current?.remove();
   }, []);
-  
 
   return (
     <div className="h-screen w-full relative font-poppins">
