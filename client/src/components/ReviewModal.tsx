@@ -32,50 +32,50 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
           <X size={24} />
         </button>
         
-        <h2 className="text-3xl font-bold mb-6 text-white">Add Review</h2>
+        <h2 className="text-2xl font-bold mb-6 text-white">Add Review</h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-3">
             <label className="block text-lg font-medium text-white">Price Accuracy Rating</label>
             <div className="flex space-x-6">
-              <label className="flex items-center text-white group cursor-pointer">
-                <input
-                  type="radio"
-                  name="priceAccuracy"
-                  value="accurate"
-                  checked={priceAccuracy === 'accurate'}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPriceAccuracy(e.target.value as PriceAccuracy)}
-                  className="mr-3 h-4 w-4 cursor-pointer"
-                />
-                <span className="group-hover:text-gray-300 transition-colors duration-200">Accurate</span>
-              </label>
-              <label className="flex items-center text-white group cursor-pointer">
-                <input
-                  type="radio"
-                  name="priceAccuracy"
-                  value="high"
-                  checked={priceAccuracy === 'high'}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPriceAccuracy(e.target.value as PriceAccuracy)}
-                  className="mr-3 h-4 w-4 cursor-pointer"
-                />
-                <span className="group-hover:text-gray-300 transition-colors duration-200">Too High</span>
-              </label>
-              <label className="flex items-center text-white group cursor-pointer">
-                <input
-                  type="radio"
-                  name="priceAccuracy"
-                  value="low"
-                  checked={priceAccuracy === 'low'}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPriceAccuracy(e.target.value as PriceAccuracy)}
-                  className="mr-3 h-4 w-4 cursor-pointer"
-                />
-                <span className="group-hover:text-gray-300 transition-colors duration-200">Too Low</span>
-              </label>
+              {[
+                { value: 'accurate', label: 'Accurate' },
+                { value: 'high', label: 'Too High' },
+                { value: 'low', label: 'Too Low' }
+              ].map(({ value, label }) => (
+                <label key={value} className="flex items-center text-white group cursor-pointer">
+                  <div className="relative flex items-center">
+                    <input
+                      type="radio"
+                      name="priceAccuracy"
+                      value={value}
+                      checked={priceAccuracy === value}
+                      onChange={(e) => setPriceAccuracy(e.target.value as PriceAccuracy)}
+                      className="sr-only"
+                    />
+                    <div className={`
+                      w-5 h-5 rounded-full border-2 transition-colors duration-200
+                      ${priceAccuracy === value 
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-blue-400 hover:border-blue-300'
+                      }
+                    `}>
+                      {priceAccuracy === value && (
+                        <div className="w-2 h-2 bg-white rounded-full absolute 
+                          top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                      )}
+                    </div>
+                  </div>
+                  <span className="ml-3 group-hover:text-gray-300 transition-colors duration-200">
+                    {label}
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
 
           <div className="space-y-3">
-            <label className="block text-lg font-medium text-white">Rating (1-5)</label>
+            <label className="block text-lg font-medium text-white">Rating</label>
             <div className="flex space-x-3">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -83,7 +83,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
                   type="button"
                   onClick={() => setRating(star)}
                   className={`text-3xl transition-colors duration-200 hover:scale-110 transform ${
-                    star <= rating ? 'text-yellow-400' : 'text-gray-300'
+                    star <= rating ? 'text-blue-500' : 'text-gray-300'
                   }`}
                 >
                   ★
@@ -97,7 +97,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
             <textarea
               value={comment}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-800 text-white 
+              className="w-full p-3 border border-blue-400 rounded-lg bg-gray-800 text-white 
                 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
                 placeholder-gray-400"
               rows={4}
@@ -110,7 +110,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
               type="button"
               onClick={onClose}
               className="px-6 py-2.5 text-white hover:text-gray-300 transition-colors duration-200
-                border border-transparent hover:border-gray-300 rounded-lg"
+                border border-transparent hover:border-blue-400 rounded-lg"
             >
               Cancel
             </button>

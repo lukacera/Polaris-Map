@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { 
   DollarSign, 
-  Filter, 
   Home,
   Bed,
-  Wifi,
-  Car,
-  Dog,
-  Trees,
-  Dumbbell,
   X
 } from 'lucide-react';
 
@@ -22,7 +16,6 @@ interface FilterState {
   priceRange: PriceRange;
   bedrooms: string[];
   bathrooms: string[];
-  amenities: string[];
 }
 
 export const FiltersSidebar: React.FC<{
@@ -35,20 +28,11 @@ export const FiltersSidebar: React.FC<{
     priceRange: { min: 0, max: 5000 },
     bedrooms: [],
     bathrooms: [],
-    amenities: []
   });
 
   const propertyTypes = [
     'Apartment',
     'House'
-  ];
-
-  const amenitiesList = [
-    { name: 'WiFi', icon: <Wifi className="w-4 h-4" /> },
-    { name: 'Parking', icon: <Car className="w-4 h-4" /> },
-    { name: 'Pet Friendly', icon: <Dog className="w-4 h-4" /> },
-    { name: 'Garden', icon: <Trees className="w-4 h-4" /> },
-    { name: 'Gym', icon: <Dumbbell className="w-4 h-4" /> }
   ];
 
   const handlePropertyTypeChange = (type: string) => {
@@ -64,16 +48,6 @@ export const FiltersSidebar: React.FC<{
   const handlePriceRangeChange = (value: number, type: 'min' | 'max') => {
     const newPriceRange = { ...filters.priceRange, [type]: value };
     const newFilters = { ...filters, priceRange: newPriceRange };
-    setFilters(newFilters);
-    onFilterChange?.(newFilters);
-  };
-
-  const handleAmenityChange = (amenity: string) => {
-    const updatedAmenities = filters.amenities.includes(amenity)
-      ? filters.amenities.filter(a => a !== amenity)
-      : [...filters.amenities, amenity];
-    
-    const newFilters = { ...filters, amenities: updatedAmenities };
     setFilters(newFilters);
     onFilterChange?.(newFilters);
   };
@@ -215,36 +189,6 @@ export const FiltersSidebar: React.FC<{
           </div>
         </div>
 
-        {/* Amenities Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Filter className="w-5 h-5" />
-              <span>Amenities</span>
-            </div>
-            <span className="text-sm text-gray-400">
-              {filters.amenities.length} selected
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {amenitiesList.map(amenity => (
-              <button
-                key={amenity.name}
-                onClick={() => handleAmenityChange(amenity.name)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                  filters.amenities.includes(amenity.name)
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-surface hover:bg-surface-active text-gray-100'
-                }`}
-              >
-                {amenity.icon}
-                <span>{amenity.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Reset Button */}
         <button
           onClick={() => {
@@ -253,7 +197,6 @@ export const FiltersSidebar: React.FC<{
               priceRange: { min: 0, max: 5000 },
               bedrooms: [],
               bathrooms: [],
-              amenities: []
             };
             setFilters(resetFilters);
             onFilterChange?.(resetFilters);
