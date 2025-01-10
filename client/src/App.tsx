@@ -37,7 +37,7 @@ function App() {
             pricePerSquareMeter: property.pricePerSquareMeter,
             rooms: property.rooms,
             yearBuilt: property.yearBuilt,
-            propertyType: property.type.toLowerCase(),
+            type: property.type.toLowerCase(),
             status: property.status,
           },
           geometry: property.geometry
