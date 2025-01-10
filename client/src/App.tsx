@@ -4,29 +4,11 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Search, Menu } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/ReviewModal';
+import { API_URL } from './apiURL';
+import { Property } from './types/Property';
+
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
-
-interface RealEstateProperties {
- id: string;
- price: number;
- size: number;
- pricePerSquare: number;
- rooms: number;
- yearBuilt: number;
- propertyType: 'apartment' | 'house' | 'office' | 'retail';
- floor?: number;
- totalFloors?: number;
- heating: 'central' | 'electric' | 'gas' | 'none';
- parking: boolean;
- elevator?: boolean;
- condition: 'new' | 'excellent' | 'good' | 'renovationNeeded';
- furnished: boolean;
- balcony: boolean;
- lastUpdated: string;
- reliability: number;
- reviewCount: number;
-}
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -40,35 +22,23 @@ function App() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch('http://localhost:3000/properties');
+      const response = await fetch(`${API_URL}/properties`);
       const data = await response.json();
       
-      // Transformišemo podatke u GeoJSON format
+      console.log(data);
       const geoJsonData: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
-        features: data.map((property: any) => ({
+        features: data.map((property: Property) => ({
           type: 'Feature',
           properties: {
             id: property._id,
             price: property.price,
             size: property.size,
-            pricePerSquare: property.pricePerSquareMeter,
+            pricePerSquareMeter: property.pricePerSquareMeter,
             rooms: property.rooms,
             yearBuilt: property.yearBuilt,
             propertyType: property.type.toLowerCase(),
             status: property.status,
-            // Postavljamo default vrednosti za polja koja trenutno nemamo u bazi
-            floor: 1,
-            totalFloors: 1,
-            heating: 'central',
-            parking: false,
-            elevator: false,
-            condition: 'good',
-            furnished: false,
-            balcony: false,
-            lastUpdated: new Date().toISOString(),
-            reliability: 75,
-            reviewCount: 0
           },
           geometry: property.geometry
         }))
@@ -76,7 +46,6 @@ function App() {
 
       setProperties(geoJsonData);
 
-      // Ažuriramo source na mapi ako postoji
       if (map.current?.getSource('realEstate')) {
         (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);
       }
@@ -86,14 +55,17 @@ function App() {
   };
 
   useEffect(() => {
+    fetchProperties();
+  }, [])
+
+  useEffect(() => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [20.4568, 44.8125],
-      zoom: 4,
+      zoom: 4
     });
 
-    fetchProperties();
 
     console.log('Map created');
     console.log("props")
@@ -102,8 +74,7 @@ function App() {
       const visibleFeatures = map.current?.querySourceFeatures('realEstate');
       if (!visibleFeatures?.length) return;
       
-      const prices = visibleFeatures.map(f => f.properties.pricePerSquare
-      );
+      const prices = visibleFeatures.map(f => f.properties?.pricePerSquare);
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
       
@@ -207,7 +178,8 @@ function App() {
       map.current?.on('click', 'realEstate-points', (e) => {
         const features = e.features as GeoJSONFeature[];
         const coordinates = features[0].geometry.coordinates.slice();
-        const props = features[0].properties as RealEstateProperties;
+        const props = features[0].properties as Property
+        console.log(props);
         const popupContent = `
         <style>
           .mapboxgl-popup-close-button {
@@ -262,9 +234,9 @@ function App() {
       
             <div class="flex items-baseline gap-2">
               <h2 class="text-xl font-bold">
-                ${props.price.toLocaleString('en-US')} €
+                ${props.price} €
               </h2>
-              <p class="text-gray-300 text-sm">${props.pricePerSquare.toLocaleString('en-US')} €/m²</p>
+              <p class="text-gray-300 text-sm">${props.pricePerSquareMeter} €/m²</p>
             </div>
           </div>
       
@@ -274,7 +246,7 @@ function App() {
             <div class="grid grid-cols-4 gap-3">
               <div class="p-2 bg-gray-50 rounded">
                 <p class="text-xs text-gray-500">Type</p>
-                <p class="text-sm font-medium text-gray-900">${props.propertyType}</p>
+                <p class="text-sm font-medium text-gray-900">${props.type}</p>
               </div>
               <div class="p-2 bg-gray-50 rounded">
                 <p class="text-xs text-gray-500">Size</p>
@@ -286,7 +258,7 @@ function App() {
               </div>
               <div class="p-2 bg-gray-50 rounded">
                 <p class="text-xs text-gray-500">Floor</p>
-                <p class="text-sm font-medium text-gray-900">${props.floor}/${props.totalFloors}</p>
+                <p class="text-sm font-medium text-gray-900">2/3</p>
               </div>
             </div>
       
@@ -296,10 +268,10 @@ function App() {
               <div class="space-y-1">
                 <div class="flex justify-between items-center">
                   <p class="text-xs font-medium text-gray-700">Data Reliability</p>
-                  <span class="text-xs text-gray-500">${props.reviewCount} reviews</span>
+                  <span class="text-xs text-gray-500">5 reviews</span>
                 </div>
                 <div class="w-full bg-gray-100 rounded-full h-1.5">
-                  <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: ${props.reliability}%"></div>
+                  <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: 50%"></div>
                 </div>
               </div>
       
@@ -324,7 +296,7 @@ function App() {
                 
                 <div class="flex gap-1">
                   <button 
-                    onclick="window.handlePriceVote('${props.id}', 'lower')"
+                    onclick="window.handlePriceVote('${props._id}', 'lower')"
                     class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
                           hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-xs font-medium group"
                   >
@@ -335,7 +307,7 @@ function App() {
                   </button>
       
                   <button 
-                    onclick="window.handlePriceVote('${props.id}', 'accurate')"
+                    onclick="window.handlePriceVote('${props._id}', 'accurate')"
                     class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
                           hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
                   >
@@ -346,7 +318,7 @@ function App() {
                   </button>
       
                   <button 
-                    onclick="window.handlePriceVote('${props.id}', 'higher')"
+                    onclick="window.handlePriceVote('${props._id}', 'higher')"
                     class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
                           hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-xs font-medium group"
                   >
@@ -361,7 +333,7 @@ function App() {
       
             <!-- Last review -->
             <p class="text-xs text-gray-400 text-right">
-              Last review: ${new Date(props.lastUpdated).toLocaleDateString('en-US')}
+              Last review: ${new Date(props.updatedAt).toLocaleDateString('en-US')}
             </p>
           </div>
         </div>
@@ -382,7 +354,7 @@ function App() {
     });
   
     return () => map.current?.remove();
-  }, []);
+  }, [properties]);
 
   return (
     <>
