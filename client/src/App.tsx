@@ -39,6 +39,7 @@ function App() {
             yearBuilt: property.yearBuilt,
             type: property.type.toLowerCase(),
             status: property.status,
+            updatedAt: property.updatedAt
           },
           geometry: property.geometry
         }))
@@ -198,7 +199,7 @@ function App() {
           }
           .tooltip .tooltip-text {
             visibility: hidden;
-            width: 200px;
+            width: 300px;
             background-color: #1f2937;
             color: white;
             text-align: center;
@@ -331,7 +332,6 @@ function App() {
               </div>
             </div>
       
-            <!-- Last review -->
             <p class="text-xs text-gray-400 text-right">
               Last review: ${new Date(props.updatedAt).toLocaleDateString('en-US')}
             </p>

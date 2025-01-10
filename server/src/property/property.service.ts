@@ -49,7 +49,8 @@ export class PropertyService {
         rooms: getRandomNumber(1, 5),
         yearBuilt: getRandomNumber(1960, 2023),
         status: Math.random() > 0.3 ? 'Buy' : 'Rent',
-        pricePerSquareMeter: Math.round(price / size)
+        pricePerSquareMeter: Math.round(price / size),
+        dataReliability: getRandomNumber(50, 100)
       };
    
       randomProperties.push(property);

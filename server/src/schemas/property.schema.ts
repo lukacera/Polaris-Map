@@ -56,6 +56,20 @@ export class Property {
     index: true 
   })
   pricePerSquareMeter: number;
+
+  @Prop({
+    type: Number,
+    default: 100,
+    min: 0,
+    max: 100
+  })
+  dataReliability: number;
+
+  @Prop({ 
+    type: Number, 
+    default: 0
+  })
+  numberOfReviews?: number;
 }
 
 export type PropertyDocument = Property & Document;
