@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { Property } from 'src/schemas/property.schema';
 
@@ -9,5 +9,10 @@ export class PropertyController {
   @Get()
   async getAllProperties(): Promise<Property[]> {
     return this.propertyService.getAllProperties();
+  }
+
+  @Post("default")
+  async createDefaultProperties(): Promise<Property[]> {
+    return this.propertyService.createRandomProperties();
   }
 }
