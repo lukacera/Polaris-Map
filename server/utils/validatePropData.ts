@@ -1,5 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
-
 export interface PropertyInput {
   geometry: {
     type: string;
@@ -14,7 +12,7 @@ export interface PropertyInput {
   pricePerSquareMeter: number;
 }
 
-export function validateProperty(property: PropertyInput): void {
+export function validateProperty(property: PropertyInput): string[] {
   const errors: string[] = [];
 
   // Geometry validation
@@ -63,16 +61,6 @@ export function validateProperty(property: PropertyInput): void {
     errors.push('Status must be either "Buy" or "Rent"');
   }
 
-  // Price per square meter validation
-  if (typeof property.pricePerSquareMeter !== 'number' || property.pricePerSquareMeter <= 0) {
-    errors.push('Price per square meter must be a positive number');
-  }
-
   // If there are any errors, throw exception
-  if (errors.length > 0) {
-    throw new BadRequestException({
-      message: 'Validation failed',
-      errors: errors
-    });
-  }
+  return errors
 }

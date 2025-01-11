@@ -7,7 +7,6 @@ import ReviewModal from './components/ReviewModal';
 import { API_URL } from './apiURL';
 import { Property } from './types/Property';
 
-
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
 function App() {
@@ -25,7 +24,6 @@ function App() {
       const response = await fetch(`${API_URL}/properties`);
       const data = await response.json();
       
-      console.log(data);
       const geoJsonData: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
         features: data.map((property: Property) => ({
@@ -59,7 +57,7 @@ function App() {
 
   useEffect(() => {
     fetchProperties();
-  }, [])
+  }, []);
 
   useEffect(() => {
     map.current = new mapboxgl.Map({
@@ -69,86 +67,10 @@ function App() {
       zoom: 4
     });
 
-
-    console.log('Map created');
-    console.log("props")
-    console.log(properties)
-    map.current.on('moveend', () => {
-      const visibleFeatures = map.current?.querySourceFeatures('realEstate');
-      if (!visibleFeatures?.length) return;
-      
-      const prices = visibleFeatures.map(f => f.properties?.pricePerSquareMeter);
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      
-      map.current?.setPaintProperty('realEstate-heat', 'heatmap-weight', (() => {
-        const breakpoints = [
-          { value: minPrice, weight: 0.3 },
-          { value: maxPrice * 0.25, weight: 0.4 },
-          { value: maxPrice * 0.5, weight: 0.6 },
-          { value: maxPrice * 0.75, weight: 0.8 },
-          { value: maxPrice, weight: 1 }
-        ];
-      
-        // Sort by ascending value
-        const sortedBreakpoints = breakpoints.sort((a, b) => a.value - b.value);
-      
-        // Flatten the array for Mapbox's interpolate expression
-        return [
-          'interpolate',
-          ['linear'],
-          ['get', 'pricePerSquareMeter'],
-          ...sortedBreakpoints.flatMap(({ value, weight }) => [value, weight])
-        ];
-      })());
-    });
-    
     map.current.on('load', () => {
-      map.current?.addSource('realEstate', { type: 'geojson', data: properties });
-  
-      map.current?.addLayer({
-        id: 'realEstate-heat',
-        type: 'heatmap',
-        source: 'realEstate',
-        paint: {
-          'heatmap-weight': [
-            'interpolate',
-            ['linear'],
-            ['get', 'pricePerSquareMeter'],
-            1000, 0.3,
-            100000, 0.4,
-            500000, 0.6,
-            1000000, 0.8,
-            5000000, 1
-          ],
-          'heatmap-color': [
-              'interpolate',
-              ['linear'],
-              ['heatmap-density'],
-              0, 'rgba(255, 255, 0, 0)',
-              0.2, 'rgba(255, 255, 0, 0.6)',
-              0.4, 'rgba(255, 200, 0, 0.7)',
-              0.6, 'rgba(255, 140, 0, 0.8)',
-              0.8, 'rgba(255, 69, 0, 0.9)',
-              1, 'rgba(255, 0, 0, 1)'
-          ],
-          'heatmap-radius': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 5,
-            8, 50,
-            12, 100,
-            16, 200
-          ],
-          'heatmap-opacity': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 0.7,
-            10, 0.4
-          ],
-        },
+      map.current?.addSource('realEstate', { 
+        type: 'geojson', 
+        data: properties 
       });
 
       map.current?.addLayer({
@@ -156,33 +78,95 @@ function App() {
         type: 'circle',
         source: 'realEstate',
         paint: {
-          'circle-radius': 6,
-          'circle-color': '#FF5722',
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 4,
+            12, 8,
+            16, 12
+          ],
+          'circle-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'pricePerSquareMeter'],
+            0, '#FFEB3B',
+            2000, '#FFA726',
+            4000, '#FF7043',
+            6000, '#FF1744'
+          ],
+          'circle-opacity': 0.8,
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#FFFFFF',
-        },
-      });
-  
-      let hideTimeout: number | null = null;
-  
-      map.current?.on('zoomstart', () => {
-        map.current?.setLayoutProperty('realEstate-heat', 'visibility', 'none');
-        if (hideTimeout) {
-          clearTimeout(hideTimeout);
         }
       });
-  
-      map.current?.on('zoomend', () => {
-        hideTimeout = setTimeout(() => {
-          map.current?.setLayoutProperty('realEstate-heat', 'visibility', 'visible');
-        }, 500);
+
+      map.current?.on('moveend', () => {
+        const visibleFeatures = map.current?.querySourceFeatures('realEstate');
+        console.log(visibleFeatures);
+        if (!visibleFeatures?.length) return;
+        
+        const prices = visibleFeatures.map(f => f.properties?.pricePerSquareMeter).filter(Boolean);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      
+        map.current?.setPaintProperty('realEstate-points', 'circle-radius', [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 3,
+          12, 6,
+          16, 10
+        ]);
+      
+        map.current?.setPaintProperty('realEstate-points', 'circle-color', [
+          'interpolate',
+          ['linear'],
+          ['get', 'pricePerSquareMeter'],
+          minPrice, '#FFC107',
+          avgPrice * 0.75, '#FF9800',
+          avgPrice, '#FF5722',
+          avgPrice * 1.25, '#E53935',
+          maxPrice, '#B71C1C'
+        ]);
+        const currentZoom = map.current?.getZoom() || 0;
+        const opacity = Math.min(0.8, Math.max(0.4, currentZoom / 20));
+        
+        map.current?.setPaintProperty('realEstate-points', 'circle-opacity', opacity);
+        map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 1.5,
+          12, 2,
+          16, 2.5
+        ]);
+        
+        map.current?.setPaintProperty('realEstate-points', 'circle-blur', [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          8, 0.5,
+          12, 0.2,
+          16, 0
+        ]);
       });
-  
+
+      map.current?.on('mouseenter', 'realEstate-points', () => {
+        map.current!.getCanvas().style.cursor = 'pointer';
+        map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 2);
+      });
+
+      map.current?.on('mouseleave', 'realEstate-points', () => {
+        map.current!.getCanvas().style.cursor = '';
+        map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 1);
+      });
+
       map.current?.on('click', 'realEstate-points', (e) => {
         const features = e.features as GeoJSONFeature[];
         const coordinates = features[0].geometry.coordinates.slice();
-        const props = features[0].properties as Property
-        console.log(props);
+        const props = features[0].properties as Property;
+        
         const popupContent = `
         <style>
           .mapboxgl-popup-close-button {
@@ -223,7 +207,6 @@ function App() {
           }
         </style>
         <div class="overflow-hidden bg-white">
-          <!-- Header with price -->
           <div class="relative px-5 py-3 bg-accent text-white">
             <button 
               class="absolute top-2 right-2 p-1 rounded-full bg-white/80 backdrop-blur-sm text-gray-500 hover:text-gray-700 hover:bg-white transition-all duration-200"
@@ -243,9 +226,7 @@ function App() {
             </div>
           </div>
       
-          <!-- Main content -->
           <div class="p-4 space-y-4">
-            <!-- Property details grid -->
             <div class="grid grid-cols-4 gap-3">
               <div class="p-2 bg-gray-50 rounded">
                 <p class="text-xs text-gray-500">Type</p>
@@ -265,9 +246,7 @@ function App() {
               </div>
             </div>
       
-            <!-- Reliability meter and vote buttons in two columns -->
             <div class="grid grid-cols-2 gap-4">
-              <!-- Reliability meter -->
               <div class="space-y-1">
                 <div class="flex justify-between items-center">
                   <p class="text-xs font-medium text-gray-700">Data Reliability</p>
@@ -278,7 +257,6 @@ function App() {
                 </div>
               </div>
       
-              <!-- Vote buttons with tooltip -->
               <div class="space-y-1">
                 <div class="flex justify-between items-center mb-1">
                   <div class="tooltip">
@@ -344,14 +322,6 @@ function App() {
           .setLngLat(coordinates as [number, number])
           .setHTML(popupContent)
           .addTo(map.current!);
-      });
-  
-      map.current?.on('mouseenter', 'realEstate-points', () => {
-        map.current!.getCanvas().style.cursor = 'pointer';
-      });
-  
-      map.current?.on('mouseleave', 'realEstate-points', () => {
-        map.current!.getCanvas().style.cursor = '';
       });
     });
   
