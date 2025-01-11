@@ -20,9 +20,8 @@ export class PropertyService {
     const getRandomNumber = (min: number, max: number) => 
       Math.floor(Math.random() * (max - min + 1)) + min;
    
-    // Helper funkcija za random koordinate oko Beograda
     const getRandomCoordinates = () => {
-      // Beograd aproksimativne granice
+      // BELGRADE COORDINATES
       const latMin = 44.7; 
       const latMax = 44.9;
       const lngMin = 20.3;
@@ -57,5 +56,20 @@ export class PropertyService {
     }
    
     return this.propertyModel.insertMany(randomProperties);
+  }
+
+  async createProperty(propertyData: Partial<Property>): Promise<Property> {
+    if (propertyData.price && propertyData.size && !propertyData.pricePerSquareMeter) {
+      propertyData.pricePerSquareMeter = Math.round(propertyData.price / propertyData.size);
+    }
+  
+    if (propertyData.geometry && !propertyData.geometry.type) {
+      propertyData.geometry = {
+        type: 'Point',
+        coordinates: propertyData.geometry.coordinates || [0, 0]
+      };
+    }
+  
+    return this.propertyModel.create(propertyData);
   }
 }

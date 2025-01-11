@@ -39,7 +39,9 @@ function App() {
             yearBuilt: property.yearBuilt,
             type: property.type.toLowerCase(),
             status: property.status,
-            updatedAt: property.updatedAt
+            updatedAt: property.updatedAt,
+            numberOfReviews: property.numberOfReviews,
+            dataReliability: property.dataReliability
           },
           geometry: property.geometry
         }))
@@ -95,7 +97,7 @@ function App() {
         return [
           'interpolate',
           ['linear'],
-          ['get', 'price'],
+          ['get', 'pricePerSquareMeter'],
           ...sortedBreakpoints.flatMap(({ value, weight }) => [value, weight])
         ];
       })());
@@ -135,9 +137,9 @@ function App() {
             ['linear'],
             ['zoom'],
             0, 5,
-            8, 150,
-            12, 300,
-            16, 600
+            8, 50,
+            12, 100,
+            16, 200
           ],
           'heatmap-opacity': [
             'interpolate',
@@ -269,10 +271,10 @@ function App() {
               <div class="space-y-1">
                 <div class="flex justify-between items-center">
                   <p class="text-xs font-medium text-gray-700">Data Reliability</p>
-                  <span class="text-xs text-gray-500">5 reviews</span>
+                  <span class="text-xs text-gray-500">${props.numberOfReviews} reviews</span>
                 </div>
                 <div class="w-full bg-gray-100 rounded-full h-1.5">
-                  <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: 50%"></div>
+                  <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: ${props.dataReliability}%"></div>
                 </div>
               </div>
       
@@ -375,7 +377,7 @@ function App() {
             rounded-lg hover:bg-accent-hover transition-colors duration-200 
             flex items-center space-x-2 font-medium"
           >
-            Add review
+            Add new property
           </button>
         </div>
 

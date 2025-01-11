@@ -11,6 +11,9 @@ export type Property = {
     status: 'Buy' | 'Rent';  
     type: 'Apartment' | 'House';
     yearBuilt: number;
+    dataReliability: number;
+    numberOfReviews: number;
+
     updatedAt: string; 
     createdAt: string; 
 };
