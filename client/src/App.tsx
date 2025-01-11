@@ -77,7 +77,7 @@ function App() {
       const visibleFeatures = map.current?.querySourceFeatures('realEstate');
       if (!visibleFeatures?.length) return;
       
-      const prices = visibleFeatures.map(f => f.properties?.pricePerSquare);
+      const prices = visibleFeatures.map(f => f.properties?.pricePerSquareMeter);
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
       
@@ -114,7 +114,7 @@ function App() {
           'heatmap-weight': [
             'interpolate',
             ['linear'],
-            ['get', 'price'],
+            ['get', 'pricePerSquareMeter'],
             1000, 0.3,
             100000, 0.4,
             500000, 0.6,
