@@ -7,6 +7,8 @@ import ReviewModal from './components/NewPropModal';
 import { API_URL } from './apiURL';
 import { Property } from './types/Property';
 import NewPropBtn from './components/NewPropBtn';
+import { createRoot } from 'react-dom/client';
+import PropertyPopup from './components/PopupContent';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
@@ -76,12 +78,10 @@ function App() {
         type: 'geojson', 
         data: properties 
       });
-     if(map.current) map.current.getCanvas().style.cursor = 'drag';
+      console.log("isDraggable", isDraggable);
+      map.current!.getCanvas().style.cursor = isDraggable ? 'drag' : "pointer";
 
       map.current?.on('click', (e) => {
-        if (!isDraggable) return;
-        
-        // Get clicked point features within a small radius
         const bbox = [
           [e.point.x - 5, e.point.y - 5],
           [e.point.x + 5, e.point.y + 5]
@@ -91,11 +91,11 @@ function App() {
           layers: ['realEstate-points']
         });
       
-        // Only open modal if no features exist at clicked location
         if (existingFeatures && existingFeatures.length === 0) {
           const { lng, lat } = e.lngLat;
           console.log('Coordinates:', lng, lat);
-          setIsAddPropModalOpen(true);
+          console.log("isDraggable", isDraggable);
+          if (!isDraggable) setIsAddPropModalOpen(true);
         }
       });
       map.current?.addLayer({
@@ -188,14 +188,11 @@ function App() {
 
       map.current?.on('mouseenter', 'realEstate-points', (e) => {
         if (e.features && e.features.length > 0) {
-          // Get the ID of the hovered point
           const featureId = e.features[0].properties?.id as string;
       
           console.log('Hovered feature ID:', featureId);
-          // Store the hovered point ID to reset it on mouseleave
           hoveredPointId = featureId;
       
-          // Change the style of the hovered point
           map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', [
             'case',
             ['==', ['id'], featureId],
@@ -210,14 +207,11 @@ function App() {
       
       map.current?.on('mouseleave', 'realEstate-points', () => {
         if (hoveredPointId) {
-          // Reset the style of the previously hovered point
           map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 1);
       
-          // Clear the hovered point ID
           hoveredPointId = null;
         }
       
-        // Reset the cursor style
         map.current!.getCanvas().style.cursor = '';
       });
 
@@ -225,171 +219,32 @@ function App() {
         const features = e.features as GeoJSONFeature[];
         const coordinates = features[0].geometry.coordinates.slice();
         const props = features[0].properties as Property;
-        
-        const popupContent = `
-        <style>
-          .mapboxgl-popup-close-button {
-            display: none;
-          }
-          .mapboxgl-popup-content {
-            width: 480px !important;
-            padding: 0 !important;
-            border-radius: 0.75rem !important;
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-          }
-          .tooltip {
-            position: relative;
-            display: inline-block;
-          }
-          .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 300px;
-            background-color: #1f2937;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            border-radius: 6px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.2s;
-            font-size: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-          }
-          .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-          }
-        </style>
-        <div class="overflow-hidden bg-white">
-          <div class="relative px-5 py-3 bg-accent text-white">
-            <button 
-              class="absolute top-2 right-2 p-1 rounded-full bg-white/80 backdrop-blur-sm text-gray-500 hover:text-gray-700 hover:bg-white transition-all duration-200"
-              onclick="this.closest('.mapboxgl-popup').remove()"
-              aria-label="Close popup"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
       
-            <div class="flex items-baseline gap-2">
-              <h2 class="text-xl font-bold">
-                ${props.price} €
-              </h2>
-              <p class="text-gray-300 text-sm">${props.pricePerSquareMeter} €/m²</p>
-            </div>
-          </div>
+        const popupContainer = document.createElement('div');
       
-          <div class="p-4 space-y-4">
-            <div class="grid grid-cols-4 gap-3">
-              <div class="p-2 bg-gray-50 rounded">
-                <p class="text-xs text-gray-500">Type</p>
-                <p class="text-sm font-medium text-gray-900">${props.type}</p>
-              </div>
-              <div class="p-2 bg-gray-50 rounded">
-                <p class="text-xs text-gray-500">Size</p>
-                <p class="text-sm font-medium text-gray-900">${props.size}m²</p>
-              </div>
-              <div class="p-2 bg-gray-50 rounded">
-                <p class="text-xs text-gray-500">Rooms</p>
-                <p class="text-sm font-medium text-gray-900">${props.rooms}</p>
-              </div>
-              <div class="p-2 bg-gray-50 rounded">
-                <p class="text-xs text-gray-500">Floor</p>
-                <p class="text-sm font-medium text-gray-900">2/3</p>
-              </div>
-            </div>
-      
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-1">
-                <div class="flex justify-between items-center">
-                  <p class="text-xs font-medium text-gray-700">Data Reliability</p>
-                  <span class="text-xs text-gray-500">${props.numberOfReviews} reviews</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                  <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style="width: ${props.dataReliability}%"></div>
-                </div>
-              </div>
-      
-              <div class="space-y-1">
-                <div class="flex justify-between items-center mb-1">
-                  <div class="tooltip">
-                    <button class="text-xs text-gray-500 flex items-center gap-1">
-                      Help
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M12 21a9 9 0 110-18 9 9 0 010 18z" />
-                      </svg>
-                    </button>
-                    <span class="tooltip-text">
-                      Help us improve price accuracy by voting:
-                      <br>• Lower - if the price seems too high
-                      <br>• OK - if the price seems accurate
-                      <br>• Higher - if the price seems too low
-                    </span>
-                  </div>
-                </div>
-                
-                <div class="flex gap-1">
-                  <button 
-                    onclick="window.handlePriceVote('${props._id}', 'lower')"
-                    class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
-                          hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-xs font-medium group"
-                  >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                    Lower
-                  </button>
-      
-                  <button 
-                    onclick="window.handlePriceVote('${props._id}', 'accurate')"
-                    class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
-                          hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
-                  >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    OK
-                  </button>
-      
-                  <button 
-                    onclick="window.handlePriceVote('${props._id}', 'higher')"
-                    class="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
-                          hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-xs font-medium group"
-                  >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                    </svg>
-                    Higher
-                  </button>
-                </div>
-              </div>
-            </div>
-      
-            <p class="text-xs text-gray-400 text-right">
-              Last review: ${new Date(props.updatedAt).toLocaleDateString('en-US')}
-            </p>
-          </div>
-        </div>
-      `;
-        new mapboxgl.Popup()
+        const popup = new mapboxgl.Popup()
           .setLngLat(coordinates as [number, number])
-          .setHTML(popupContent)
+          .setDOMContent(popupContainer) 
           .addTo(map.current!);
+      
+        createRoot(popupContainer).render(
+          <PropertyPopup
+            property={props}
+            onClose={() => popup.remove()} 
+          />
+        );
       });
+      
     });
   
     return () => map.current?.remove();
   }, [properties, isDraggable]);
   
+  console.log(map.current?.dragPan.isEnabled());
   const toggleDragMode = () => {
     if (isDraggable && map.current) {
       map.current.dragPan.disable(); 
+      console.log("dragging disabled");
       map.current.getCanvas().style.cursor = 'drag'; 
     } else if (map.current) {
       map.current.dragPan.enable(); 
@@ -398,6 +253,7 @@ function App() {
     setIsDraggable(!isDraggable); 
   };
 
+  console.log("is it draggable", isDraggable);
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
@@ -417,8 +273,8 @@ function App() {
             className="bg-mainWhite transition-all duration-200 border shadow-xl
             p-2 rounded-lg text-black hover:bg-mainWhite-muted flex items-center gap-2"
           >
-            {isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
-            {isDraggable ? 'Drag' : 'Select'}
+            {!isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
+            {!isDraggable ? 'Drag' : 'Select'}
           </button>
         </div>
 
