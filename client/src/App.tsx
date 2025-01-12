@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
+import mapboxgl, { GeoJSONFeature, MapMouseEvent, PointLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Search, Menu, Move, MousePointer } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
@@ -170,7 +170,6 @@ function App() {
         if (e.features && e.features.length > 0) {
           const featureId = e.features[0].properties?.id as string;
       
-          console.log('Hovered feature ID:', featureId);
           hoveredPointId = featureId;
       
           map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', [
@@ -197,7 +196,10 @@ function App() {
 
       map.current?.on('click', 'realEstate-points', (e) => {
         const features = e.features as GeoJSONFeature[];
-        const coordinates = features[0].geometry.coordinates.slice();
+        let coordinates: number[] = [0, 0];
+        if (features[0].geometry.type === 'Point') {
+          coordinates = (features[0].geometry as GeoJSON.Point).coordinates.slice();
+        }
         const props = features[0].properties as Property;
       
         const popupContainer = document.createElement('div');
@@ -220,12 +222,10 @@ function App() {
     return () => map.current?.remove();
   }, [properties]);
   
-  console.log(map.current?.dragPan.isEnabled());
 
   const toggleDragMode = () => {
     if (isDraggable && map.current) {
       map.current.dragPan.disable(); 
-      console.log("dragging disabled");
       map.current.getCanvas().style.cursor = 'drag'; 
     } else if (map.current) {
       map.current.dragPan.enable(); 
@@ -238,7 +238,6 @@ function App() {
   useEffect(() => {
     if (!map.current) return;
   
-    console.log("IS IT DRAGGABLE", isDraggable);
   
     if (isDraggable) {
       map.current.dragPan.enable();
@@ -249,23 +248,21 @@ function App() {
     }
   
     // Define the click event handler
-    const handleClick = (e) => {
+    const handleClick = (e: MapMouseEvent) => {
       const bbox = [
         [e.point.x - 5, e.point.y - 5],
         [e.point.x + 5, e.point.y + 5]
       ];
   
-      const existingFeatures = map.current?.queryRenderedFeatures(bbox, {
+      const existingFeatures = map.current?.queryRenderedFeatures(bbox as [PointLike, PointLike], {
         layers: ['realEstate-points']
       });
   
       if (existingFeatures && existingFeatures.length === 0) {
         const { lng, lat } = e.lngLat;
-        console.log('Coordinates:', lng, lat);
-        console.log("is it draggableeee", isDraggable);
+        console.log('lng:', lng, 'lat:', lat);
         if (!isDraggable) {
           setIsAddPropModalOpen(true);
-          console.log("modal opened");
         }
       }
     };
