@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, Move, MousePointer } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
 import { API_URL } from './apiURL';
@@ -19,6 +19,7 @@ function App() {
     type: 'FeatureCollection',
     features: []
   });
+  const [isDraggable, setIsDraggable] = useState(true);
 
   const fetchProperties = async () => {
     try {
@@ -73,7 +74,12 @@ function App() {
         type: 'geojson', 
         data: properties 
       });
-
+      map.current?.on('click', (e) => {
+        if (!isDraggable) return;
+        const { lng, lat } = e.lngLat;
+        console.log('Coordinates:', lng, lat);
+        setIsAddPropModalOpen(true);
+      });
       map.current?.addLayer({
         id: 'realEstate-points',
         type: 'circle',
@@ -103,7 +109,6 @@ function App() {
 
       map.current?.on('moveend', () => {
         const visibleFeatures = map.current?.querySourceFeatures('realEstate');
-        console.log(visibleFeatures);
         if (!visibleFeatures?.length) return;
         
         const prices = visibleFeatures.map(f => f.properties?.pricePerSquareMeter).filter(Boolean);
@@ -328,21 +333,40 @@ function App() {
   
     return () => map.current?.remove();
   }, [properties]);
+  
+  const toggleDragMode = () => {
+    if (isDraggable && map.current) {
+      map.current.dragPan.disable(); 
+      map.current.getCanvas().style.cursor = 'pointer'; 
+    } else if (map.current) {
+      map.current.dragPan.enable(); 
+      map.current.getCanvas().style.cursor = ''; 
+    }
+    setIsDraggable(!isDraggable); 
+  };
 
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
-        <div className="absolute top-4 left-4 z-10 flex items-center space-x-4">
+        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-8">
           <div className="relative">
             <input
               type="text"
               placeholder="Enter a city name"
-              className="w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border 
+              className="w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border
               border-background focus:outline-none focus:border-blue-500 pl-10 shadow-lg"
             />
             <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
           </div>
           <NewPropBtn onClick={() => setIsAddPropModalOpen(true)}/>
+          <button
+            onClick={toggleDragMode}
+            className="bg-mainWhite transition-all duration-200
+            p-2 rounded-lg text-black hover:bg-mainWhite-muted flex items-center gap-2"
+          >
+            {isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
+            {isDraggable ? 'Drag' : 'Select'}
+          </button>
         </div>
 
         {!isSidebarOpen && (

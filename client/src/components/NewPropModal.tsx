@@ -71,7 +71,8 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-background text-white rounded-2xl p-8 w-full max-w-4xl mx-4 relative shadow-2xl border border-surface-border">
+      <div className="bg-background text-white rounded-2xl p-8 w-full max-w-4xl mx-4 
+        relative shadow-2xl border border-surface-border">
         <button 
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors duration-200 
