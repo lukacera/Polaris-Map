@@ -6,6 +6,7 @@ import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/ReviewModal';
 import { API_URL } from './apiURL';
 import { Property } from './types/Property';
+import NewPropBtn from './components/NewPropBtn';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
@@ -13,7 +14,7 @@ function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
   const [properties, setProperties] = useState<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
     features: []
@@ -114,9 +115,9 @@ function App() {
           'interpolate',
           ['linear'],
           ['zoom'],
-          8, 3,
+          8, 4,
           12, 6,
-          16, 10
+          16, 12
         ]);
       
         map.current?.setPaintProperty('realEstate-points', 'circle-color', [
@@ -341,14 +342,7 @@ function App() {
             />
             <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
           </div>
-          <button
-            onClick={() => setIsReviewModalOpen(true)}
-            className="px-4 py-2 bg-accent text-white shadow-lg
-            rounded-lg hover:bg-accent-hover transition-colors duration-200 
-            flex items-center space-x-2 font-medium"
-          >
-            Add new property
-          </button>
+          <NewPropBtn onClick={() => setIsAddPropModalOpen(true)}/>
         </div>
 
         {!isSidebarOpen && (
@@ -364,8 +358,8 @@ function App() {
         <div ref={mapContainer} className="w-full h-full" />
       </div>
       <ReviewModal 
-        isOpen={isReviewModalOpen}
-        onClose={() => setIsReviewModalOpen(false)}
+        isOpen={isAddPropModalOpen}
+        onClose={() => setIsAddPropModalOpen(false)}
       />
     </>
   );
