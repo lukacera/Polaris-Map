@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Home, DollarSign, Maximize2, BedDouble, Calendar, MapPin } from 'lucide-react';
+import { validateForm } from '../utils/validatePropFormData';
+import { PropFormData } from '../types/PropFormData';
 
 interface PropertyModalProps {
   isOpen: boolean;
@@ -7,20 +9,41 @@ interface PropertyModalProps {
 }
 
 const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PropFormData>({
     price: '',
     type: 'Apartment',
     size: '',
     rooms: '',
     yearBuilt: new Date().getFullYear().toString(),
     status: 'Buy',
-    coordinates: ['', '']
+    coordinates: ["-0.1276", "51.5074"] // London coordinates
   });
+
+  useEffect(() => {
+    setErrors([]);
+    setFormData({
+      price: '',
+      type: 'Apartment',
+      size: '',
+      rooms: '',
+      yearBuilt: new Date().getFullYear().toString(),
+      status: 'Buy',
+      coordinates: ["-0.1276", "51.5074"]
+    });
+  }, [isOpen]);
+  const [errors, setErrors] = useState<string[]>([]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const validationErrors = validateForm(formData);
+    setErrors(validationErrors);
+    
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+    
     const propertyData = {
       ...formData,
       geometry: {
@@ -39,7 +62,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
       const index = Number(name.slice(-1));
       setFormData(prev => ({
         ...prev,
-        coordinates: prev.coordinates.map((c, i) => i === index ? value : c)
+        coordinates: prev.coordinates.map((c, i) => i === index ? value : c) as [string, string]
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -48,7 +71,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-background text-white rounded-2xl p-8 w-full max-w-2xl mx-4 relative shadow-2xl border border-surface-border">
+      <div className="bg-background text-white rounded-2xl p-8 w-full max-w-4xl mx-4 relative shadow-2xl border border-surface-border">
         <button 
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors duration-200 
@@ -64,7 +87,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
         
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Main form grid */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-3 gap-6">
             {/* Property Type */}
             <div className="space-y-2 relative">
               <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
@@ -209,6 +232,20 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
               />
             </div>
           </div>
+
+          {errors.length > 0 && (
+            <div className="space-y-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+              {errors.map((error, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center text-sm text-red-400"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 mr-2" />
+                  {error}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex justify-end space-x-4 pt-6 border-t border-surface-border">

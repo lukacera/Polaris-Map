@@ -3,7 +3,7 @@ import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Search, Menu } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
-import ReviewModal from './components/ReviewModal';
+import ReviewModal from './components/NewPropModal';
 import { API_URL } from './apiURL';
 import { Property } from './types/Property';
 import NewPropBtn from './components/NewPropBtn';
