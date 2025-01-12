@@ -28,8 +28,10 @@ function App() {
       
       const geoJsonData: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
-        features: data.map((property: Property) => ({
+        features: data.map((property: Property, index: number) => (
+          {
           type: 'Feature',
+          id: property._id || index,
           properties: {
             id: property._id,
             price: property.price,
@@ -74,11 +76,27 @@ function App() {
         type: 'geojson', 
         data: properties 
       });
+     if(map.current) map.current.getCanvas().style.cursor = 'drag';
+
       map.current?.on('click', (e) => {
         if (!isDraggable) return;
-        const { lng, lat } = e.lngLat;
-        console.log('Coordinates:', lng, lat);
-        setIsAddPropModalOpen(true);
+        
+        // Get clicked point features within a small radius
+        const bbox = [
+          [e.point.x - 5, e.point.y - 5],
+          [e.point.x + 5, e.point.y + 5]
+        ];
+        
+        const existingFeatures = map.current?.queryRenderedFeatures(bbox, {
+          layers: ['realEstate-points']
+        });
+      
+        // Only open modal if no features exist at clicked location
+        if (existingFeatures && existingFeatures.length === 0) {
+          const { lng, lat } = e.lngLat;
+          console.log('Coordinates:', lng, lat);
+          setIsAddPropModalOpen(true);
+        }
       });
       map.current?.addLayer({
         id: 'realEstate-points',
@@ -111,11 +129,24 @@ function App() {
         const visibleFeatures = map.current?.querySourceFeatures('realEstate');
         if (!visibleFeatures?.length) return;
         
-        const prices = visibleFeatures.map(f => f.properties?.pricePerSquareMeter).filter(Boolean);
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
+        const prices = visibleFeatures
+          .map((f) => f.properties?.pricePerSquareMeter)
+          .filter(Boolean);
+        
+        if (prices.length === 0) return; // No valid prices
+        
+        let minPrice = Math.min(...prices);
+        let maxPrice = Math.max(...prices);
         const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-      
+
+        // Handle single price case
+        if (minPrice === maxPrice) {
+          const offset = minPrice * 0.1; // 10% offset
+          minPrice -= offset;
+          maxPrice += offset;
+        }
+            
+        console.log('Prices:', minPrice, avgPrice, maxPrice);
         map.current?.setPaintProperty('realEstate-points', 'circle-radius', [
           'interpolate',
           ['linear'],
@@ -130,15 +161,10 @@ function App() {
           ['linear'],
           ['get', 'pricePerSquareMeter'],
           minPrice, '#FFC107',
-          avgPrice * 0.75, '#FF9800',
-          avgPrice, '#FF5722',
-          avgPrice * 1.25, '#E53935',
+          avgPrice, '#E53935',
           maxPrice, '#B71C1C'
         ]);
-        const currentZoom = map.current?.getZoom() || 0;
-        const opacity = Math.min(0.8, Math.max(0.4, currentZoom / 20));
-        
-        map.current?.setPaintProperty('realEstate-points', 'circle-opacity', opacity);
+
         map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', [
           'interpolate',
           ['linear'],
@@ -152,20 +178,47 @@ function App() {
           'interpolate',
           ['linear'],
           ['zoom'],
-          8, 0.5,
-          12, 0.2,
+          8, 0.2,
+          12, 0.1,
           16, 0
         ]);
       });
 
-      map.current?.on('mouseenter', 'realEstate-points', () => {
-        map.current!.getCanvas().style.cursor = 'pointer';
-        map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 2);
-      });
+      let hoveredPointId: string | null = null;
 
+      map.current?.on('mouseenter', 'realEstate-points', (e) => {
+        if (e.features && e.features.length > 0) {
+          // Get the ID of the hovered point
+          const featureId = e.features[0].properties?.id as string;
+      
+          console.log('Hovered feature ID:', featureId);
+          // Store the hovered point ID to reset it on mouseleave
+          hoveredPointId = featureId;
+      
+          // Change the style of the hovered point
+          map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', [
+            'case',
+            ['==', ['id'], featureId],
+            2,
+            1,
+          ]);
+      
+          // Change the cursor style
+          map.current!.getCanvas().style.cursor = 'pointer';
+        }
+      });
+      
       map.current?.on('mouseleave', 'realEstate-points', () => {
+        if (hoveredPointId) {
+          // Reset the style of the previously hovered point
+          map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 1);
+      
+          // Clear the hovered point ID
+          hoveredPointId = null;
+        }
+      
+        // Reset the cursor style
         map.current!.getCanvas().style.cursor = '';
-        map.current?.setPaintProperty('realEstate-points', 'circle-stroke-width', 1);
       });
 
       map.current?.on('click', 'realEstate-points', (e) => {
@@ -332,15 +385,15 @@ function App() {
     });
   
     return () => map.current?.remove();
-  }, [properties]);
+  }, [properties, isDraggable]);
   
   const toggleDragMode = () => {
     if (isDraggable && map.current) {
       map.current.dragPan.disable(); 
-      map.current.getCanvas().style.cursor = 'pointer'; 
+      map.current.getCanvas().style.cursor = 'drag'; 
     } else if (map.current) {
       map.current.dragPan.enable(); 
-      map.current.getCanvas().style.cursor = ''; 
+      map.current.getCanvas().style.cursor = 'pointer'; 
     }
     setIsDraggable(!isDraggable); 
   };
@@ -348,7 +401,7 @@ function App() {
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
-        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-8">
+        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-5">
           <div className="relative">
             <input
               type="text"
@@ -361,7 +414,7 @@ function App() {
           <NewPropBtn onClick={() => setIsAddPropModalOpen(true)}/>
           <button
             onClick={toggleDragMode}
-            className="bg-mainWhite transition-all duration-200
+            className="bg-mainWhite transition-all duration-200 border shadow-xl
             p-2 rounded-lg text-black hover:bg-mainWhite-muted flex items-center gap-2"
           >
             {isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
@@ -373,7 +426,7 @@ function App() {
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="absolute top-4 right-4 z-20 
-            bg-gray-800 p-2 rounded-lg text-white hover:bg-gray-700"
+            bg-mainWhite p-2 rounded-lg text-black"
           >
             <Menu size={24} />
           </button>
