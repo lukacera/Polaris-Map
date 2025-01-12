@@ -5,6 +5,6 @@ export type PropFormData = {
     rooms: string;
     yearBuilt: string;
     status: "Buy" | "Rent" | "Lease";
-    coordinates: [string, string];
+    coordinates: string[]
 };
   

@@ -21,6 +21,7 @@ function App() {
     type: 'FeatureCollection',
     features: []
   });
+  const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
   const fetchProperties = async () => {
@@ -260,7 +261,7 @@ function App() {
   
       if (existingFeatures && existingFeatures.length === 0) {
         const { lng, lat } = e.lngLat;
-        console.log('lng:', lng, 'lat:', lat);
+        setCoordinates([parseFloat(lng.toFixed(5)), parseFloat(lat.toFixed(5))]);
         if (!isDraggable) {
           setIsAddPropModalOpen(true);
         }
@@ -276,7 +277,6 @@ function App() {
     };
   
   }, [isDraggable]);
-  
 
   return (
     <>
@@ -317,6 +317,7 @@ function App() {
       <ReviewModal 
         isOpen={isAddPropModalOpen}
         onClose={() => setIsAddPropModalOpen(false)}
+        coordinates={coordinates}
       />
     </>
   );

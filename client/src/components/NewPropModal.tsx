@@ -6,9 +6,10 @@ import { PropFormData } from '../types/PropFormData';
 interface PropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  coordinates?: number[];
 }
 
-const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
+const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordinates}) => {
   const [formData, setFormData] = useState<PropFormData>({
     price: '',
     type: 'Apartment',
@@ -16,9 +17,11 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
     rooms: '',
     yearBuilt: new Date().getFullYear().toString(),
     status: 'Buy',
-    coordinates: ["-0.1276", "51.5074"] // London coordinates
+    coordinates: coordinates ? coordinates.map(String) : ["-0.1276", "51.5074"]
   });
-
+  
+  const [errors, setErrors] = useState<string[]>([]);
+  
   useEffect(() => {
     setErrors([]);
     setFormData({
@@ -31,8 +34,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
       coordinates: ["-0.1276", "51.5074"]
     });
   }, [isOpen]);
-  const [errors, setErrors] = useState<string[]>([]);
-
+  
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,9 +42,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
     const validationErrors = validateForm(formData);
     setErrors(validationErrors);
     
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
     
     const propertyData = {
       ...formData,
@@ -52,7 +52,6 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
       },
       pricePerSquareMeter: Number(formData.price) / Number(formData.size)
     };
-    console.log(propertyData);
     onClose();
   };
 
@@ -71,27 +70,25 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-background text-white rounded-2xl p-8 w-full max-w-4xl mx-4 
-        relative shadow-2xl border border-surface-border">
+      <div className="bg-background text-white rounded-2xl p-6 w-full max-w-4xl mx-4 relative shadow-2xl border border-surface-border">
         <button 
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors duration-200 
+          className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200 
             hover:bg-surface-border/10 p-2 rounded-full"
           type="button"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
         
-        <h2 className="text-2xl font-bold mb-8">
+        <h2 className="text-2xl font-bold mb-6">
           Add New Property
         </h2>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Main form grid */}
-          <div className="grid grid-cols-3 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-3 gap-5">
             {/* Property Type */}
-            <div className="space-y-2 relative">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <Home size={16} className="mr-2 text-blue-400" />
                 Property Type
               </label>
@@ -99,8 +96,8 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-surface-border focus:border-transparent transition-all duration-200
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
+                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
                   cursor-pointer appearance-none shadow-xl" 
               >
                 <option value="Apartment">Apartment</option>
@@ -110,7 +107,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
 
             {/* Status */}
             <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <DollarSign size={16} className="mr-2 text-green-400" />
                 Status
               </label>
@@ -118,9 +115,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 cursor-pointer appearance-none shadow-xl"
+                  cursor-pointer appearance-none shadow-xl"
               >
                 <option value="Buy">For Sale</option>
                 <option value="Rent">For Rent</option>
@@ -129,7 +126,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
 
             {/* Price */}
             <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <DollarSign size={16} className="mr-2 text-yellow-400" />
                 Price
               </label>
@@ -138,16 +135,16 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
+                  placeholder-gray-500"
                 placeholder="Enter price"
               />
             </div>
 
             {/* Size */}
             <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <Maximize2 size={16} className="mr-2 text-purple-400" />
                 Size (m²)
               </label>
@@ -157,16 +154,16 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 value={formData.size}
                 min={1}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
+                  placeholder-gray-500"
                 placeholder="Enter size"
               />
             </div>
 
             {/* Rooms */}
             <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <BedDouble size={16} className="mr-2 text-pink-400" />
                 Number of Rooms
               </label>
@@ -176,16 +173,16 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 value={formData.rooms}
                 onChange={handleInputChange}
                 min="1"
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
-                placeholder="Enter number of rooms"
+                  placeholder-gray-500"
+                placeholder="Enter rooms"
               />
             </div>
 
             {/* Year Built */}
             <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-300">
                 <Calendar size={16} className="mr-2 text-orange-400" />
                 Year Built
               </label>
@@ -196,29 +193,29 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 max={new Date().getFullYear()}
                 value={formData.yearBuilt}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
-                placeholder="Enter year built"
+                  placeholder-gray-500"
+                placeholder="Enter year"
               />
             </div>
           </div>
 
           {/* Location coordinates */}
           <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-gray-300 mb-2">
+            <label className="flex items-center text-sm font-medium text-gray-300">
               <MapPin size={16} className="mr-2 text-red-400" />
               Location Coordinates
             </label>
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <input
                 type="text"
                 name="coordinate0"
                 value={formData.coordinates[0]}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
+                  placeholder-gray-500"
                 placeholder="Longitude"
               />
               <input
@@ -226,16 +223,16 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
                 name="coordinate1"
                 value={formData.coordinates[1]}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-surface-border rounded-xl bg-background text-white 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
                   focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  hover:border-surface-border/70 placeholder-gray-500"
+                  placeholder-gray-500"
                 placeholder="Latitude"
               />
             </div>
           </div>
 
           {errors.length > 0 && (
-            <div className="space-y-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <div className="space-y-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
               {errors.map((error, index) => (
                 <div 
                   key={index}
@@ -249,18 +246,18 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose }) => {
           )}
 
           {/* Action buttons */}
-          <div className="flex justify-end space-x-4 pt-6 border-t border-surface-border">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-surface-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 text-gray-300 hover:text-white transition-all duration-200
+              className="px-5 py-2.5 text-gray-300 hover:text-white transition-all duration-200
                 border border-surface-border hover:border-surface-border/70 rounded-xl hover:bg-surface-border/10"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-accent text-white rounded-xl transition-all duration-200 font-medium
+              className="px-5 py-2.5 bg-accent text-white rounded-xl transition-all duration-200 font-medium
                 hover:bg-accent-hover"
             >
               Create Property
