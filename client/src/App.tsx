@@ -78,26 +78,7 @@ function App() {
         type: 'geojson', 
         data: properties 
       });
-      console.log("isDraggable", isDraggable);
-      map.current!.getCanvas().style.cursor = isDraggable ? 'drag' : "pointer";
 
-      map.current?.on('click', (e) => {
-        const bbox = [
-          [e.point.x - 5, e.point.y - 5],
-          [e.point.x + 5, e.point.y + 5]
-        ];
-        
-        const existingFeatures = map.current?.queryRenderedFeatures(bbox, {
-          layers: ['realEstate-points']
-        });
-      
-        if (existingFeatures && existingFeatures.length === 0) {
-          const { lng, lat } = e.lngLat;
-          console.log('Coordinates:', lng, lat);
-          console.log("isDraggable", isDraggable);
-          if (!isDraggable) setIsAddPropModalOpen(true);
-        }
-      });
       map.current?.addLayer({
         id: 'realEstate-points',
         type: 'circle',
@@ -146,7 +127,6 @@ function App() {
           maxPrice += offset;
         }
             
-        console.log('Prices:', minPrice, avgPrice, maxPrice);
         map.current?.setPaintProperty('realEstate-points', 'circle-radius', [
           'interpolate',
           ['linear'],
@@ -238,9 +218,10 @@ function App() {
     });
   
     return () => map.current?.remove();
-  }, [properties, isDraggable]);
+  }, [properties]);
   
   console.log(map.current?.dragPan.isEnabled());
+
   const toggleDragMode = () => {
     if (isDraggable && map.current) {
       map.current.dragPan.disable(); 
@@ -250,10 +231,56 @@ function App() {
       map.current.dragPan.enable(); 
       map.current.getCanvas().style.cursor = 'pointer'; 
     }
+    map.current!.getCanvas().style.cursor = isDraggable ? 'drag' : "pointer";
     setIsDraggable(!isDraggable); 
   };
 
-  console.log("is it draggable", isDraggable);
+  useEffect(() => {
+    if (!map.current) return;
+  
+    console.log("IS IT DRAGGABLE", isDraggable);
+  
+    if (isDraggable) {
+      map.current.dragPan.enable();
+      map.current.getCanvas().style.cursor = 'grab';
+    } else {
+      map.current.dragPan.disable();
+      map.current.getCanvas().style.cursor = 'pointer';
+    }
+  
+    // Define the click event handler
+    const handleClick = (e) => {
+      const bbox = [
+        [e.point.x - 5, e.point.y - 5],
+        [e.point.x + 5, e.point.y + 5]
+      ];
+  
+      const existingFeatures = map.current?.queryRenderedFeatures(bbox, {
+        layers: ['realEstate-points']
+      });
+  
+      if (existingFeatures && existingFeatures.length === 0) {
+        const { lng, lat } = e.lngLat;
+        console.log('Coordinates:', lng, lat);
+        console.log("is it draggableeee", isDraggable);
+        if (!isDraggable) {
+          setIsAddPropModalOpen(true);
+          console.log("modal opened");
+        }
+      }
+    };
+  
+    // Add the click event listener
+    map.current?.on('click', handleClick);
+  
+    // Cleanup function to unsubscribe from the listener
+    return () => {
+      map.current?.off('click', handleClick);
+    };
+  
+  }, [isDraggable]);
+  
+
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
