@@ -26,11 +26,24 @@ export function validateProperty(property: PropertyInput): string[] {
         property.geometry.coordinates.length !== 2 ||
         !property.geometry.coordinates.every(coord => typeof coord === 'number')) {
       errors.push('Geometry coordinates must be an array of 2 numbers');
+    } else {
+      const [lat, long] = property.geometry.coordinates;
+      // Latitude and Longitude validation
+      const parsedLat = parseFloat(lat.toString());
+      const parsedLong = parseFloat(long.toString());
+
+      if (parsedLat < -90 || parsedLat > 90) {
+        errors.push('Latitude must be between -90 and 90 (first element of coordinates)');
+      }
+      if (parsedLong < -180 || parsedLong > 180) {
+        errors.push('Longitude must be between -180 and 180 (second element of coordinates)');
+      }
     }
   }
 
   // Price validation
-  if (typeof property.price !== 'number' || property.price <= 0) {
+  const parsedPrice = parseFloat(property.price.toString());
+  if (isNaN(parsedPrice) || parsedPrice <= 0) {
     errors.push('Price must be a positive number');
   }
 
@@ -40,20 +53,21 @@ export function validateProperty(property: PropertyInput): string[] {
   }
 
   // Size validation
-  if (typeof property.size !== 'number' || property.size <= 0) {
+  const parsedSize = parseFloat(property.size.toString());
+  if (isNaN(parsedSize) || parsedSize <= 0) {
     errors.push('Size must be a positive number');
   }
 
   // Rooms validation
-  if (typeof property.rooms !== 'number' || property.rooms < 1) {
+  const parsedRooms = parseInt(property.rooms.toString(), 10);
+  if (isNaN(parsedRooms) || parsedRooms < 1) {
     errors.push('Number of rooms must be at least 1');
   }
 
   // Year built validation
-  if (typeof property.yearBuilt !== 'number' || 
-      property.yearBuilt < 1800 || 
-      property.yearBuilt > new Date().getFullYear()) {
-    errors.push('Year built must be between 1800 and current year');
+  const parsedYearBuilt = parseInt(property.yearBuilt.toString(), 10);
+  if (isNaN(parsedYearBuilt) || parsedYearBuilt < 1000 || parsedYearBuilt > new Date().getFullYear()) {
+    errors.push('Year built must be between 1000 and current year');
   }
 
   // Status validation
@@ -61,6 +75,6 @@ export function validateProperty(property: PropertyInput): string[] {
     errors.push('Status must be either "Buy" or "Rent"');
   }
 
-  // If there are any errors, throw exception
-  return errors
+  // If there are any errors, return them
+  return errors;
 }

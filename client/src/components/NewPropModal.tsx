@@ -17,13 +17,16 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordina
     rooms: '',
     yearBuilt: new Date().getFullYear().toString(),
     status: 'Buy',
-    coordinates: coordinates ? coordinates.map(String) : ["-0.1276", "51.5074"]
+    coordinates: ["-0.1276", "51.5074"] // Default coordinates for London
   });
   
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const [errors, setErrors] = useState<string[]>([]);
   
   useEffect(() => {
     setErrors([]);
+    console.log('coordinates', coordinates);
     setFormData({
       price: '',
       type: 'Apartment',
@@ -31,13 +34,14 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordina
       rooms: '',
       yearBuilt: new Date().getFullYear().toString(),
       status: 'Buy',
-      coordinates: ["-0.1276", "51.5074"]
+      coordinates: coordinates && coordinates?.length > 0 ? coordinates.map(String) : ["-0.1276", "51.5074"]
     });
-  }, [isOpen]);
+    
+  }, [isOpen, coordinates]);
   
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     const validationErrors = validateForm(formData);
     setErrors(validationErrors);
@@ -52,6 +56,15 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordina
       },
       pricePerSquareMeter: Number(formData.price) / Number(formData.size)
     };
+    const response = await fetch(`${apiUrl}/properties`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(propertyData)
+    })
+    const data = await response.json();
+    console.log(data);
     onClose();
   };
 

@@ -4,7 +4,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Search, Menu, Move, MousePointer } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
-import { API_URL } from './apiURL';
 import { Property } from './types/Property';
 import NewPropBtn from './components/NewPropBtn';
 import { createRoot } from 'react-dom/client';
@@ -24,45 +23,48 @@ function App() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
-  const fetchProperties = async () => {
-    try {
-      const response = await fetch(`${API_URL}/properties`);
-      const data = await response.json();
-      
-      const geoJsonData: GeoJSON.FeatureCollection = {
-        type: 'FeatureCollection',
-        features: data.map((property: Property, index: number) => (
-          {
-          type: 'Feature',
-          id: property._id || index,
-          properties: {
-            id: property._id,
-            price: property.price,
-            size: property.size,
-            pricePerSquareMeter: property.pricePerSquareMeter,
-            rooms: property.rooms,
-            yearBuilt: property.yearBuilt,
-            type: property.type.toLowerCase(),
-            status: property.status,
-            updatedAt: property.updatedAt,
-            numberOfReviews: property.numberOfReviews,
-            dataReliability: property.dataReliability
-          },
-          geometry: property.geometry
-        }))
-      };
-
-      setProperties(geoJsonData);
-
-      if (map.current?.getSource('realEstate')) {
-        (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);
-      }
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-    }
-  };
 
   useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    const fetchProperties = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/properties`);
+        const data = await response.json();
+        
+        const geoJsonData: GeoJSON.FeatureCollection = {
+          type: 'FeatureCollection',
+          features: data.map((property: Property, index: number) => (
+            {
+            type: 'Feature',
+            id: property._id || index,
+            properties: {
+              id: property._id,
+              price: property.price,
+              size: property.size,
+              pricePerSquareMeter: property.pricePerSquareMeter,
+              rooms: property.rooms,
+              yearBuilt: property.yearBuilt,
+              type: property.type.toLowerCase(),
+              status: property.status,
+              updatedAt: property.updatedAt,
+              numberOfReviews: property.numberOfReviews,
+              dataReliability: property.dataReliability
+            },
+            geometry: property.geometry
+          }))
+        };
+  
+        setProperties(geoJsonData);
+  
+        if (map.current?.getSource('realEstate')) {
+          (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);
+        }
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      }
+    };
+  
     fetchProperties();
   }, []);
 
@@ -291,7 +293,11 @@ function App() {
             />
             <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
           </div>
-          <NewPropBtn onClick={() => setIsAddPropModalOpen(true)}/>
+          <NewPropBtn onClick={() => {
+              setCoordinates([]);
+              setIsAddPropModalOpen(true)
+            }}
+          />
           <button
             onClick={toggleDragMode}
             className="bg-mainWhite transition-all duration-200 border shadow-xl
