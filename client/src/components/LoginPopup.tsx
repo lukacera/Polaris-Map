@@ -12,9 +12,17 @@ export default function LoginPopup({
     onLogin = () => (window.location.href = '/login') 
 }: LoginRequiredPopupProps) {
   if (!isOpen) return null;
+  
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Check if the click is directly on the backdrop, not on a child element
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
     <div
+      onClick={handleBackdropClick}
       className="fixed inset-0 w-screen h-screen overflow-hidden bg-black/60 
         flex items-center justify-center z-50 backdrop-blur-sm"
     >
@@ -76,7 +84,6 @@ export default function LoginPopup({
             </svg>
             <span>Continue with Google</span>
           </button>
-
         </div>
       </div>
     </div>

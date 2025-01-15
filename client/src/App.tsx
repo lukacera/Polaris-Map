@@ -16,8 +16,12 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+ 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(true)
+
+  // Map states
   const [properties, setProperties] = useState<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
     features: []
@@ -320,7 +324,7 @@ function App() {
         coordinates={coordinates}
         mapRef={map}
       />
-      <LoginPopup isOpen={true} onClose={() => {}}/>
+      <LoginPopup isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}/>
     </>
   );
 }
