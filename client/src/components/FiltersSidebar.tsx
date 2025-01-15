@@ -23,12 +23,19 @@ export const FiltersSidebar: React.FC<{
   onFilterChange?: (filters: FilterState) => void;
   onClose?: () => void;
 }> = ({ isSidebarOpen, onFilterChange, onClose }) => {
+  
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
     priceRange: { min: 0, max: 5000 },
     bedrooms: [],
     bathrooms: [],
   });
+
+  const [appliedFilters, setAppliedFilters] = useState<{
+    id: string;
+    label: string;
+    value: string;
+  }[]>([]);
 
   const propertyTypes = [
     'Apartment',
@@ -42,6 +49,17 @@ export const FiltersSidebar: React.FC<{
     
     const newFilters = { ...filters, propertyTypes: updatedTypes };
     setFilters(newFilters);
+    
+    if (filters.propertyTypes.includes(type)) {
+      setAppliedFilters(appliedFilters.filter(f => f.id !== `type-${type}`));
+    } else {
+      setAppliedFilters([...appliedFilters, {
+        id: `type-${type}`,
+        label: 'Type',
+        value: type
+      }]);
+    }
+    
     onFilterChange?.(newFilters);
   };
 
@@ -49,6 +67,22 @@ export const FiltersSidebar: React.FC<{
     const newPriceRange = { ...filters.priceRange, [type]: value };
     const newFilters = { ...filters, priceRange: newPriceRange };
     setFilters(newFilters);
+    
+    const existingPriceFilter = appliedFilters.find(f => f.id === `price-${type}`);
+    if (existingPriceFilter) {
+      setAppliedFilters(appliedFilters.map(f => 
+        f.id === `price-${type}` 
+          ? { ...f, value: `$${value}` }
+          : f
+      ));
+    } else {
+      setAppliedFilters([...appliedFilters, {
+        id: `price-${type}`,
+        label: `Price ${type === 'min' ? 'From' : 'To'}`,
+        value: `$${value}`
+      }]);
+    }
+    
     onFilterChange?.(newFilters);
   };
 
@@ -59,6 +93,17 @@ export const FiltersSidebar: React.FC<{
     
     const newFilters = { ...filters, bedrooms: updatedBedrooms };
     setFilters(newFilters);
+    
+    if (filters.bedrooms.includes(count)) {
+      setAppliedFilters(appliedFilters.filter(f => f.id !== `bedroom-${count}`));
+    } else {
+      setAppliedFilters([...appliedFilters, {
+        id: `bedroom-${count}`,
+        label: 'Bedrooms',
+        value: count
+      }]);
+    }
+    
     onFilterChange?.(newFilters);
   };
 
@@ -188,7 +233,29 @@ export const FiltersSidebar: React.FC<{
           </div>
         </div>
 
-        <div className="flex gap-5 mt-10">
+        {/* Applied Filters */}
+        {appliedFilters.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {appliedFilters.map((filter) => (
+              <div
+                key={filter.id}
+                className="flex items-center gap-2 bg-surface px-3 py-1.5 rounded-full text-sm"
+              >
+                <span>{filter.label}: {filter.value}</span>
+                <button
+                  onClick={() => {
+                    setAppliedFilters(appliedFilters.filter(f => f.id !== filter.id));
+                  }}
+                  className="hover:text-red-400 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-5 my-7">
           <button
             onClick={() => onFilterChange?.(filters)}
             className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-md transition-colors"
@@ -205,6 +272,7 @@ export const FiltersSidebar: React.FC<{
                 bathrooms: [],
               };
               setFilters(resetFilters);
+              setAppliedFilters([]); 
               onFilterChange?.(resetFilters);
             }}
             className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 rounded-md transition-colors"
