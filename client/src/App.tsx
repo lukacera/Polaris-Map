@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature, MapMouseEvent, PointLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Search, Menu, Move, MousePointer } from 'lucide-react';
+import { Menu, Move, MousePointer } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
 import { Property } from './types/Property';
@@ -9,6 +9,7 @@ import NewPropBtn from './components/NewPropBtn';
 import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
+import LoginPopup from './components/LoginPopup';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -319,6 +320,7 @@ function App() {
         coordinates={coordinates}
         mapRef={map}
       />
+      <LoginPopup isOpen={true} onClose={() => {}}/>
     </>
   );
 }
