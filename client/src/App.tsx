@@ -19,7 +19,7 @@ function App() {
  
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(true)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   // Map states
   const [properties, setProperties] = useState<GeoJSON.FeatureCollection>({
@@ -221,7 +221,8 @@ function App() {
         createRoot(popupContainer).render(
           <PropertyPopup
             property={props}
-            onClose={() => popup.remove()} 
+            onClose={() => popup.remove()}
+            setIsLoginModalOpen={setIsLoginModalOpen} 
           />
         );
       });

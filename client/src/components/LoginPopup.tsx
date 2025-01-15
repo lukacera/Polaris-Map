@@ -14,7 +14,6 @@ export default function LoginPopup({
   if (!isOpen) return null;
   
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Check if the click is directly on the backdrop, not on a child element
     if (e.target === e.currentTarget) {
       onClose();
     }

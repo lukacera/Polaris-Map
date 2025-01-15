@@ -1,16 +1,21 @@
-// components/PropertyPopup.tsx
+import { Dispatch, SetStateAction } from 'react';
 import { Property } from '../types/Property';
 
 interface PropertyPopupProps {
   property: Property;
   onClose: () => void;
+  setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
+const PropertyPopup = ({ property, onClose, setIsLoginModalOpen }: PropertyPopupProps) => {
+  const handleVoteClick = () => {
+    setIsLoginModalOpen(true);
+  };
+
   return (
     <div className="overflow-hidden bg-white">
       <div className="relative px-5 py-3 bg-accent text-white">
-        <button 
+        <button
           className="absolute top-2 right-2 p-1 rounded-full bg-white/80 backdrop-blur-sm text-gray-500 hover:text-gray-700 hover:bg-white transition-all duration-200"
           onClick={onClose}
         >
@@ -20,9 +25,7 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
         </button>
 
         <div className="flex items-baseline gap-2">
-          <h2 className="text-xl font-bold">
-            {property.price} €
-          </h2>
+          <h2 className="text-xl font-bold">{property.price} €</h2>
           <p className="text-gray-300 text-sm">{property.pricePerSquareMeter.toFixed(0)} €/m²</p>
         </div>
       </div>
@@ -54,8 +57,8 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
               <span className="text-xs text-gray-500">{property.numberOfReviews} reviews</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div 
-                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" 
+              <div
+                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${property.dataReliability}%` }}
               />
             </div>
@@ -72,15 +75,16 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
                 </button>
                 <span className="tooltip-text">
                   Help us improve price accuracy by voting:
-                  <br/>• Lower - if the price seems too high
-                  <br/>• OK - if the price seems accurate
-                  <br/>• Higher - if the price seems too low
+                  <br />• Lower - if the price seems too high
+                  <br />• OK - if the price seems accurate
+                  <br />• Higher - if the price seems too low
                 </span>
               </div>
             </div>
-            
+
             <div className="flex gap-1">
-              <button 
+              <button
+                onClick={handleVoteClick}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
                         hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-xs font-medium group"
               >
@@ -90,9 +94,10 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
                 Lower
               </button>
 
-              <button 
+              <button
+                onClick={handleVoteClick}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
-                        hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
+                  hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -100,7 +105,8 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
                 OK
               </button>
 
-              <button 
+              <button
+                onClick={handleVoteClick}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
                         hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-xs font-medium group"
               >
