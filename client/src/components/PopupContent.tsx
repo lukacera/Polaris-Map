@@ -23,7 +23,7 @@ const PropertyPopup = ({ property, onClose }: PropertyPopupProps) => {
           <h2 className="text-xl font-bold">
             {property.price} €
           </h2>
-          <p className="text-gray-300 text-sm">{property.pricePerSquareMeter.toFixed(4)} €/m²</p>
+          <p className="text-gray-300 text-sm">{property.pricePerSquareMeter} €/m²</p>
         </div>
       </div>
 
