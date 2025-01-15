@@ -10,7 +10,7 @@ import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);

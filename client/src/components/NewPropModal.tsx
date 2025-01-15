@@ -104,7 +104,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
         if (mapRef.current) {
           mapRef.current.flyTo({
             center: [Number(formData.coordinates[0]), Number(formData.coordinates[1])],
-            zoom: 12,
+            zoom: 20,
             duration: 2000,
             essential: true
           });
