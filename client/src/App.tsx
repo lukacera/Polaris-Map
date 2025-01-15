@@ -291,7 +291,7 @@ function App() {
     <>
       <div className="h-screen w-full relative font-poppins">
         <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-5">
-          <SearchBar />
+          <SearchBar map={map}/>
           <NewPropBtn onClick={() => {
               setCoordinates([]);
               setIsAddPropModalOpen(true)
