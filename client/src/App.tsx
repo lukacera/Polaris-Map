@@ -8,6 +8,7 @@ import { Property } from './types/Property';
 import NewPropBtn from './components/NewPropBtn';
 import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
+import SearchBar from './components/SearchBar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibHVrYWNlcmEiLCJhIjoiY201anFhNXhtMTJsbzJrc2JyaTE2emgyOCJ9.Rh-_iWOpDcLcNtYpX7JB5Q';
 
@@ -284,15 +285,7 @@ function App() {
     <>
       <div className="h-screen w-full relative font-poppins">
         <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-5">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Enter a city name"
-              className="w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border
-              border-background focus:outline-none focus:border-blue-500 pl-10 shadow-lg"
-            />
-            <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-          </div>
+          <SearchBar />
           <NewPropBtn onClick={() => {
               setCoordinates([]);
               setIsAddPropModalOpen(true)
