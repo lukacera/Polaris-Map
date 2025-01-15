@@ -7,9 +7,12 @@ interface PropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
   coordinates?: number[];
+  mapRef: React.MutableRefObject<mapboxgl.Map | null>;
 }
 
-const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordinates}) => {
+const PropertyModal: React.FC<PropertyModalProps> = ({ 
+  isOpen, onClose, coordinates, mapRef
+}) => {
   const [formData, setFormData] = useState<PropFormData>({
     price: '',
     type: 'Apartment',
@@ -56,16 +59,63 @@ const PropertyModal: React.FC<PropertyModalProps> = ({ isOpen, onClose, coordina
       },
       pricePerSquareMeter: Number(formData.price) / Number(formData.size)
     };
-    const response = await fetch(`${apiUrl}/properties`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(propertyData)
-    })
-    const data = await response.json();
-    console.log(data);
-    onClose();
+    try {
+      const response = await fetch(`${apiUrl}/properties`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(propertyData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Add the new point to the map's source
+        const source = mapRef.current?.getSource('realEstate') as mapboxgl.GeoJSONSource;
+        if (source) {
+          const newFeature = {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: formData.coordinates.map(Number)
+            },
+            properties: {
+              id: data._id,
+              price: Number(formData.price),
+              size: Number(formData.size),
+              pricePerSquareMeter: Number(formData.price) / Number(formData.size),
+              rooms: Number(formData.rooms),
+              yearBuilt: Number(formData.yearBuilt),
+              type: formData.type.toLowerCase(),
+              status: formData.status,
+              updatedAt: new Date().toISOString(),
+              numberOfReviews: 0,
+              dataReliability: 'new'
+            }
+          };
+
+          const currentData = (source.serialize().data as any);
+          currentData.features.push(newFeature);
+          source.setData(currentData);
+        }
+
+        // Animate to the new property location
+        if (mapRef.current) {
+          mapRef.current.flyTo({
+            center: [Number(formData.coordinates[0]), Number(formData.coordinates[1])],
+            zoom: 12,
+            duration: 2000,
+            essential: true
+          });
+        }
+        
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error adding property:', error);
+      setErrors([...errors, 'Failed to add property. Please try again.']);
+    }  
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

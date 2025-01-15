@@ -324,6 +324,7 @@ function App() {
         isOpen={isAddPropModalOpen}
         onClose={() => setIsAddPropModalOpen(false)}
         coordinates={coordinates}
+        mapRef={map}
       />
     </>
   );
