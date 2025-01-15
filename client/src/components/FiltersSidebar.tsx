@@ -65,12 +65,11 @@ export const FiltersSidebar: React.FC<{
   return (
     <div 
       className={`absolute top-0 right-0 h-full rounded-l-lg
-        bg-background backdrop-blur-sm text-gray-100 z-10 transition-all duration-300 ${
-        isSidebarOpen ? 'w-80' : 'w-0'
-      } overflow-y-auto overflow-x-hidden`}
+        bg-background backdrop-blur-sm text-gray-100 z-10 
+        transition-all duration-300 overflow-y-auto overflow-x-hidden
+        ${isSidebarOpen ? 'w-80' : 'w-0'}`}
     >
-      <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center p-6">
           <h2 className="text-xl font-semibold">Filters</h2>
           <button 
             onClick={onClose}
@@ -79,7 +78,7 @@ export const FiltersSidebar: React.FC<{
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+      <div className="px-6 mt-5 flex flex-col gap-7">
         {/* Property Type Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -189,22 +188,30 @@ export const FiltersSidebar: React.FC<{
           </div>
         </div>
 
-        {/* Reset Button */}
-        <button
-          onClick={() => {
-            const resetFilters = {
-              propertyTypes: [],
-              priceRange: { min: 0, max: 5000 },
-              bedrooms: [],
-              bathrooms: [],
-            };
-            setFilters(resetFilters);
-            onFilterChange?.(resetFilters);
-          }}
-          className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 rounded-md transition-colors mt-8"
-        >
-          Reset Filters
-        </button>
+        <div className="flex gap-5 mt-10">
+          <button
+            onClick={() => onFilterChange?.(filters)}
+            className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-md transition-colors"
+          >
+            Apply Filters
+          </button>
+
+          <button
+            onClick={() => {
+              const resetFilters = {
+                propertyTypes: [],
+                priceRange: { min: 0, max: 5000 },
+                bedrooms: [],
+                bathrooms: [],
+              };
+              setFilters(resetFilters);
+              onFilterChange?.(resetFilters);
+            }}
+            className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 rounded-md transition-colors"
+          >
+            Reset Filters
+          </button>
+        </div>
       </div>
     </div>
   );

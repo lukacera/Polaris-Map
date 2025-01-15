@@ -180,7 +180,7 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full max-w-[20rem]">
       <div className="relative">
         <input
           type="text"

@@ -10,6 +10,7 @@ import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
+import ProfileImg from "../public/JA.jpg"
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -290,7 +291,13 @@ function App() {
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
-        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] justify-start gap-5">
+        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] 
+        items-center justify-start gap-5">
+          <img 
+            src={ProfileImg} 
+            alt="Profile" 
+            className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg"
+          />
           <SearchBar map={map}/>
           <NewPropBtn onClick={() => {
               setCoordinates([]);
