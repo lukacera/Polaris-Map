@@ -6,14 +6,10 @@ import {
   X
 } from 'lucide-react';
 
-interface PriceRange {
-  min: number;
-  max: number;
-}
-
 interface FilterState {
   propertyTypes: string[];
-  priceRange: PriceRange;
+  minPrice: number;
+  maxPrice: number;
   bedrooms: string[];
   bathrooms: string[];
 }
@@ -26,11 +22,13 @@ export const FiltersSidebar: React.FC<{
   
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
-    priceRange: { min: 0, max: 5000 },
+    minPrice: 0,
+    maxPrice: 5000,
     bedrooms: [],
     bathrooms: [],
   });
 
+  console.log(filters)
   const [appliedFilters, setAppliedFilters] = useState<{
     id: string;
     label: string;
@@ -63,9 +61,8 @@ export const FiltersSidebar: React.FC<{
     onFilterChange?.(newFilters);
   };
 
-  const handlePriceRangeChange = (value: number, type: 'min' | 'max') => {
-    const newPriceRange = { ...filters.priceRange, [type]: value };
-    const newFilters = { ...filters, priceRange: newPriceRange };
+  const handlePriceChange = (value: number, type: 'minPrice' | 'maxPrice') => {
+    const newFilters = { ...filters, [type]: value };
     setFilters(newFilters);
     
     const existingPriceFilter = appliedFilters.find(f => f.id === `price-${type}`);
@@ -78,7 +75,7 @@ export const FiltersSidebar: React.FC<{
     } else {
       setAppliedFilters([...appliedFilters, {
         id: `price-${type}`,
-        label: `Price ${type === 'min' ? 'From' : 'To'}`,
+        label: `Price ${type === 'minPrice' ? 'From' : 'To'}`,
         value: `$${value}`
       }]);
     }
@@ -115,14 +112,14 @@ export const FiltersSidebar: React.FC<{
         ${isSidebarOpen ? 'w-80' : 'w-0'}`}
     >
       <div className="flex justify-between items-center p-6">
-          <h2 className="text-xl font-semibold">Filters</h2>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-slate-800 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <h2 className="text-xl font-semibold">Filters</h2>
+        <button 
+          onClick={onClose}
+          className="p-1 hover:bg-slate-800 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
       <div className="px-6 mt-5 flex flex-col gap-7">
         {/* Property Type Section */}
         <div className="space-y-4">
@@ -159,8 +156,7 @@ export const FiltersSidebar: React.FC<{
           </div>
           
           <div className="space-y-6 ml-7">
-            <div>
-              <label className="text-sm text-gray-400">Minimum</label>
+            <label className="text-sm text-gray-400">Minimum</label>
               <div className="flex items-center space-x-2">
                 <span className="text-sm">$</span>
                 <input
@@ -168,20 +164,22 @@ export const FiltersSidebar: React.FC<{
                   min="0"
                   max="5000"
                   step="100"
-                  value={filters.priceRange.min}
-                  onChange={(e) => handlePriceRangeChange(Number(e.target.value), 'min')}
-                  className="w-full appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
+                  value={filters.minPrice}
+                  onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
+                  className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 
                   [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full 
-                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer 
-                  [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 
-                  [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-surface-active 
-                  [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer 
-                  [&::-ms-thumb]:appearance-none [&::-ms-thumb]:w-4 [&::-ms-thumb]:h-4 
-                  [&::-ms-thumb]:rounded-full [&::-ms-thumb]:bg-surface-active [&::-ms-thumb]:cursor-pointer"
+                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
                 />
-                <span className="text-sm w-16 text-gray-300">{filters.priceRange.min}</span>
-              </div>
+                <input
+                  type="number"
+                  min="0"
+                  max="5000"
+                  step="100"
+                  value={filters.minPrice}
+                  onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
+                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
+                />
             </div>
             <div>
               <label className="text-sm text-gray-400">Maximum</label>
@@ -192,24 +190,26 @@ export const FiltersSidebar: React.FC<{
                   min="0"
                   max="5000"
                   step="100"
-                  value={filters.priceRange.max}
-                  onChange={(e) => handlePriceRangeChange(Number(e.target.value), 'max')}
-                  className="w-full appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
+                  value={filters.maxPrice}
+                  onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
+                  className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 
                   [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full 
-                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer 
-                  [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 
-                  [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full 
-                  [&::-moz-range-thumb]:bg-surface-active [&::-moz-range-thumb]:border-0 
-                  [&::-moz-range-thumb]:cursor-pointer [&::-ms-thumb]:appearance-none 
-                  [&::-ms-thumb]:bg-surface-active [&::-ms-thumb]:cursor-pointer"
+                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
                 />
-                <span className="text-sm w-16 text-gray-300">{filters.priceRange.max}</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="5000"
+                  step="100"
+                  value={filters.maxPrice}
+                  onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
+                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
         </div>
-
         {/* Bedrooms Section */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -267,7 +267,8 @@ export const FiltersSidebar: React.FC<{
             onClick={() => {
               const resetFilters = {
                 propertyTypes: [],
-                priceRange: { min: 0, max: 5000 },
+                minPrice: 0,
+                maxPrice: 5000,
                 bedrooms: [],
                 bathrooms: [],
               };
