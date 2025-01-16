@@ -6,10 +6,8 @@ import { Property, PropertyDocument } from 'src/schemas/property.schema';
 
 interface FilterQuery {
   propertyTypes?: string[];
-  priceRange?: {
-    min: number;
-    max: number;
-  };
+  minPrice?: number; 
+  maxPrice?: number; 
   bedrooms?: string[];
 }
 
@@ -29,11 +27,14 @@ export class PropertyService {
       }
 
       // Price Range Filter
-      if (filters.priceRange) {
-        query.price = {
-          $gte: filters.priceRange.min,
-          $lte: filters.priceRange.max
-        };
+      if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+        query.price = {};
+        if (filters.minPrice !== undefined) {
+          query.price.$gte = filters.minPrice;
+        }
+        if (filters.maxPrice !== undefined) {
+          query.price.$lte = filters.maxPrice;
+        }
       }
 
       // Bedrooms Filter

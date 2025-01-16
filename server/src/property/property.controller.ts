@@ -5,10 +5,8 @@ import { validateProperty } from 'utils/validatePropData';
 
 interface PropertyFilters {
   propertyTypes?: string[];
-  priceRange?: {
-    min: number;
-    max: number;
-  };
+  minPrice?: number; 
+  maxPrice?: number; 
   bedrooms?: string[];
 }
 
@@ -27,20 +25,33 @@ export class PropertyController {
         : [query.propertyTypes];
     }
 
-    if (query.priceRange) {
-      try {
-        filters.priceRange = typeof query.priceRange === 'string'
-          ? JSON.parse(query.priceRange)
-          : query.priceRange;
-      } catch (error) {
+    // Parse minPrice and maxPrice
+    if (query.minPrice) {
+      const parsedMinPrice = parseFloat(query.minPrice);
+      if (isNaN(parsedMinPrice) || parsedMinPrice < 0) {
         throw new HttpException(
           {
-            message: 'Invalid price range format',
+            message: 'Invalid minPrice format',
             error: 'Bad Request',
           },
           HttpStatus.BAD_REQUEST,
         );
       }
+      filters.minPrice = parsedMinPrice;
+    }
+
+    if (query.maxPrice) {
+      const parsedMaxPrice = parseFloat(query.maxPrice);
+      if (isNaN(parsedMaxPrice) || parsedMaxPrice < 0) {
+        throw new HttpException(
+          {
+            message: 'Invalid maxPrice format',
+            error: 'Bad Request',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      filters.maxPrice = parsedMaxPrice;
     }
 
     if (query.bedrooms) {
@@ -49,6 +60,7 @@ export class PropertyController {
         : [query.bedrooms];
     }
 
+    // Pass filters to the service
     return this.propertyService.getAllProperties(filters);
   }
 
