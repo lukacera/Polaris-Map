@@ -155,7 +155,7 @@ export const FiltersSidebar: React.FC<{
             <span>Price Range</span>
           </div>
           
-          <div className="space-y-6 ml-7">
+          <div className="space-y-6 ml-2">
             <label className="text-sm text-gray-400">Minimum</label>
               <div className="flex items-center space-x-2">
                 <span className="text-sm">$</span>
@@ -169,7 +169,8 @@ export const FiltersSidebar: React.FC<{
                   className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 
                   [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full 
-                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
+                  [&::-webkit-slider-thumb]:bg-surface-active 
+                  [&::-webkit-slider-thumb]:cursor-pointer"
                 />
                 <input
                   type="number"
@@ -178,7 +179,8 @@ export const FiltersSidebar: React.FC<{
                   step="100"
                   value={filters.minPrice}
                   onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
+                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border 
+                  border-gray-700 focus:outline-none focus:border-blue-500"
                 />
             </div>
             <div>
@@ -210,6 +212,7 @@ export const FiltersSidebar: React.FC<{
             </div>
           </div>
         </div>
+
         {/* Bedrooms Section */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -258,7 +261,8 @@ export const FiltersSidebar: React.FC<{
         <div className="flex gap-5 my-7">
           <button
             onClick={() => onFilterChange?.(filters)}
-            className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-md transition-colors"
+            className="w-full bg-accent hover:bg-accent-hover text-white py-2 
+            rounded-md transition-colors"
           >
             Apply Filters
           </button>
@@ -270,13 +274,14 @@ export const FiltersSidebar: React.FC<{
                 minPrice: 0,
                 maxPrice: 5000,
                 bedrooms: [],
-                bathrooms: [],
+                bathrooms: []
               };
               setFilters(resetFilters);
               setAppliedFilters([]); 
               onFilterChange?.(resetFilters);
             }}
-            className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 rounded-md transition-colors"
+            className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 
+            rounded-md transition-colors"
           >
             Reset Filters
           </button>
