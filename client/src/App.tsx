@@ -10,7 +10,7 @@ import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
-import ProfileImg from "../public/JA.jpg"
+import ProfileImg from "/JA.jpg"
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
