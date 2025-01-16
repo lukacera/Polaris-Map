@@ -11,6 +11,7 @@ import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
 import ProfileImg from "/JA.jpg"
+import AuthButton from './components/AuthBtn';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -293,10 +294,10 @@ function App() {
       <div className="h-screen w-full relative font-poppins">
         <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] 
         items-center justify-start gap-5">
-          <img 
-            src={ProfileImg} 
-            alt="Profile" 
-            className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg"
+          <AuthButton 
+            isLoggedIn={false} 
+            profileImage={ProfileImg}
+            setIsLoginModalOpen={setIsLoginModalOpen}
           />
           <SearchBar map={map}/>
           <NewPropBtn onClick={() => {
