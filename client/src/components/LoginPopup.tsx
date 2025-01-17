@@ -1,4 +1,5 @@
 import { X, LogIn } from 'lucide-react';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 interface LoginRequiredPopupProps {
   isOpen: boolean;
@@ -9,7 +10,7 @@ interface LoginRequiredPopupProps {
 export default function LoginPopup({ 
     isOpen, 
     onClose, 
-    onLogin = () => (window.location.href = '/login') 
+    onLogin = () => (window.location.href = `${apiUrl}/auth`) 
 }: LoginRequiredPopupProps) {
   if (!isOpen) return null;
   
