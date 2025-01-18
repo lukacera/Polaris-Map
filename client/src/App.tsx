@@ -301,8 +301,12 @@ function App() {
           />
           <SearchBar map={map}/>
           <NewPropBtn onClick={() => {
-              setCoordinates([]);
-              setIsAddPropModalOpen(true)
+              // Check for login
+              setIsLoginModalOpen(true)
+              return
+              
+              // setCoordinates([]);
+              // setIsAddPropModalOpen(true)
             }}
           />
           <button
@@ -332,6 +336,7 @@ function App() {
         onClose={() => setIsAddPropModalOpen(false)}
         coordinates={coordinates}
         mapRef={map}
+        setIsLoginModalOpen={setIsLoginModalOpen}
       />
       <LoginPopup isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}/>
     </>
