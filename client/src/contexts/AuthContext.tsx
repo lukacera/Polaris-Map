@@ -1,16 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
-interface User {
-  id: string
-  email: string
-  name: string
-  picture?: string
-}
-
 interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
+  isLoggedIn: boolean
   loading: boolean
+  login: () => void
   logout: () => void
   checkAuth: () => Promise<void>
 }
@@ -20,92 +13,71 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
 }
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
+interface AuthProviderProps {
+  children: React.ReactNode
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(true)
-  
+
+  // Function to check authentication status
   const checkAuth = async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth', {
-        credentials: 'include'
+      console.log("verifiyin gfd")
+      const response = await fetch('http://localhost:3000/auth/verify-token', {
+        credentials: 'include',
       })
       if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
+        setIsLoggedIn(true)
       } else {
-        setUser(null)
+        setIsLoggedIn(false)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      setUser(null)
+      setIsLoggedIn(false)
     } finally {
       setLoading(false)
     }
   }
-  
+
+  // Function to log out
   const logout = async () => {
     try {
       await fetch('http://localhost:3000/auth/logout', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       })
-      setUser(null)
+      setIsLoggedIn(false)
     } catch (error) {
       console.error('Logout failed:', error)
     }
   }
-  
+
+  const login = () => {
+    window.location.href = 'http://localhost:3000/auth/google'
+  }
+
   useEffect(() => {
     checkAuth()
   }, [])
-  
+
   return (
-    <AuthContext.Provider 
+    <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
+        isLoggedIn,
         loading,
+        login,
         logout,
-        checkAuth
+        checkAuth,
       }}
     >
       {children}
     </AuthContext.Provider>
   )
-}
-
-export const Login = () => {
-  const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/google'
-  }
-  
-  return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <button
-        onClick={handleGoogleLogin}
-        className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-      >
-        Prijavi se sa Google nalogom
-      </button>
-    </div>
-  )
-}
-
-export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth()
-  
-  if (loading) {
-    return <div>Loading...</div>
-  }
-  
-  if (!isAuthenticated) {
-    return <Login />
-  }
-  
-  return children
 }

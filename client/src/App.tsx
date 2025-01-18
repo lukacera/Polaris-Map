@@ -12,13 +12,16 @@ import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
 import ProfileImg from "/JA.jpg"
 import AuthButton from './components/AuthBtn';
+import { useAuth } from './contexts/AuthContext';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
- 
+
+  const { isLoggedIn } = useAuth(); 
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -294,8 +297,8 @@ function App() {
       <div className="h-screen w-full relative font-poppins">
         <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] 
         items-center justify-start gap-5">
-          <AuthButton 
-            isLoggedIn={false} 
+          <AuthButton
+            isLoggedIn={isLoggedIn} 
             profileImage={ProfileImg}
             setIsLoginModalOpen={setIsLoginModalOpen}
           />
@@ -331,14 +334,8 @@ function App() {
         <FiltersSidebar isSidebarOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
         <div ref={mapContainer} className="w-full h-full" />
       </div>
-      <ReviewModal 
-        isOpen={isAddPropModalOpen}
-        onClose={() => setIsAddPropModalOpen(false)}
-        coordinates={coordinates}
-        mapRef={map}
-        setIsLoginModalOpen={setIsLoginModalOpen}
-      />
-      <LoginPopup isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}/>
+      {isAddPropModalOpen && <ReviewModal mapRef={map} coordinates={coordinates} onClose={() => setIsAddPropModalOpen(false)} />}
+      {isLoginModalOpen && <LoginPopup onClose={() => setIsLoginModalOpen(false)} />}
     </>
   );
 }

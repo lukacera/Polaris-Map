@@ -1,12 +1,14 @@
 import {
+  BadRequestException,
   Controller,
   Get,
+  Headers,
   HttpStatus,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { GoogleOAuthGuard } from 'src/google-oauth.guard';
 
@@ -51,4 +53,34 @@ export class AuthController {
       });
     }
   }
+
+  @Get('verify-token')
+  async verifyToken(@Req() request: Request, @Res() res: Response) {
+    console.log(request.cookies);
+    const token = request.cookies['token'];
+  
+    if (!token) {
+      await this.authService.logout(res);
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: 'Token is missing'
+      });
+    }
+  
+    try {
+      const decoded = this.authService.verify(token);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Token is valid',
+        user: decoded
+      });
+    } catch (error) {
+      await this.authService.logout(res);
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: 'Invalid token'
+      });
+    }
+  }
+
 }

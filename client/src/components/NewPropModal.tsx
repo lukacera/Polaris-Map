@@ -4,14 +4,13 @@ import { validateForm } from '../utils/validatePropFormData';
 import { PropFormData } from '../types/PropFormData';
 
 interface PropertyModalProps {
-  isOpen: boolean;
   onClose: () => void;
   coordinates?: number[];
   mapRef: React.MutableRefObject<mapboxgl.Map | null>;
 }
 
 const PropertyModal: React.FC<PropertyModalProps> = ({ 
-  isOpen, onClose, coordinates, mapRef
+  onClose, coordinates, mapRef
 }) => {
   const [formData, setFormData] = useState<PropFormData>({
     price: '',
@@ -40,10 +39,8 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
       coordinates: coordinates && coordinates?.length > 0 ? coordinates.map(String) : ["-0.1276", "51.5074"]
     });
     
-  }, [isOpen, coordinates]);
+  }, [coordinates]);
   
-  if (!isOpen) return null;
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     const validationErrors = validateForm(formData);

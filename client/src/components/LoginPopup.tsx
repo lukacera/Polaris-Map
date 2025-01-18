@@ -1,23 +1,22 @@
 import { X, LogIn } from 'lucide-react';
-const apiUrl = import.meta.env.VITE_API_URL;
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginRequiredPopupProps {
-  isOpen: boolean;
   onClose: () => void;
-  onLogin?: () => void;
 }
 
-export default function LoginPopup({ 
-    isOpen, 
-    onClose, 
-    onLogin = () => (window.location.href = `${apiUrl}/auth/google`) 
-}: LoginRequiredPopupProps) {
-  if (!isOpen) return null;
+export default function LoginPopup({ onClose }: LoginRequiredPopupProps) {
   
+  const { login } = useAuth();
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
+  };
+
+  const handleLogin = () => {
+    login(); // Call the login function from context
   };
 
   return (
@@ -55,7 +54,7 @@ export default function LoginPopup({
             Cancel
           </button>
           <button
-            onClick={onLogin}
+            onClick={handleLogin} // Use the login function here
             className="flex items-center justify-center px-4 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-xl 
                 transition-all duration-200 font-medium space-x-2"
           >

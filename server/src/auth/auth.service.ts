@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
-import { GoogleUser } from 'src/types/GoogleUser';
 import { Response } from 'express';
 
 type googleStrategyUser = {
@@ -26,6 +25,16 @@ export class AuthService {
   generateJwt(payload) {
     try {
       const token = this.jwtService.sign(payload);
+      return token;
+    } catch (error) {
+      console.error("JWT generation error:", error);
+      throw error;
+    }
+  }
+
+  verify(payload) {
+    try {
+      const token = this.jwtService.verify(payload);
       return token;
     } catch (error) {
       console.error("JWT generation error:", error);
