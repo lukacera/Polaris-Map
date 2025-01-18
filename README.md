@@ -2,7 +2,8 @@
 ```
 MONGO_URL
 GOOGLE_CLIENT_SECRET 
-GOOGLE_CLIENT_ID 
+GOOGLE_CLIENT_ID
+JWT_SECRET
 ```
 
 `.env` on the client side:
