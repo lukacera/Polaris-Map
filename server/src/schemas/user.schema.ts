@@ -1,70 +1,72 @@
-import mongoose from "mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Document } from 'mongoose';
 
-const userSchema = {
-    googleId: {
-      type: String,
-      required: true,
-      unique: true
-    },
-    email: {
-      type: String, 
-      required: true,
-      unique: true
-    },
-    displayName: String,
-    profilePicture: String,
-  
-    // Podaci vezani za nekretnine
-    properties: [{
-      propertyId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Property'
+interface Property {
+  propertyId: mongoose.Schema.Types.ObjectId;
+}
+
+interface Vote {
+  propertyId: mongoose.Schema.Types.ObjectId;
+  voteType: 'higher' | 'lower';
+}
+
+interface Preferences {
+  currency: 'EUR' | 'USD' | 'GBP';
+  measurementSystem: 'metric' | 'imperial';
+}
+
+export type UserDocument = User & Document;
+
+@Schema({ timestamps: true })
+export class User {
+  @Prop({ required: true, unique: true })
+  googleId: string;
+
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop()
+  displayName: string;
+
+  @Prop()
+  profilePicture: string;
+
+  @Prop([{
+    propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
+  }])
+  properties: Property[];
+
+  @Prop([{
+    propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
+    voteType: { type: String, enum: ['higher', 'lower'] },
+  }])
+  votes: Vote[];
+
+  @Prop({ type: Date, default: Date.now })
+  lastLogin: Date;
+
+  @Prop({ 
+    type: String, 
+    enum: ['active', 'suspended', 'banned'], 
+    default: 'active' 
+  })
+  status: string;
+
+  @Prop({
+    type: {
+      currency: { 
+        type: String, 
+        enum: ['EUR', 'USD', 'GBP'], 
+        default: 'EUR' 
       },
-      addedAt: {
-        type: Date,
-        default: Date.now
-      }
-    }],
-  
-    votes: [{
-      propertyId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Property'
-      },
-      voteType: {
-        type: String,
-        enum: ['higher', 'lower']
-      },
-      votedAt: {
-        type: Date,
-        default: Date.now
-      }
-    }],
-  
-    createdAt: {
-      type: Date,
-      default: Date.now
-    },
-    lastLogin: {
-      type: Date,
-      default: Date.now
-    },
-    status: {
-      type: String,
-      enum: ['active', 'suspended', 'banned'],
-      default: 'active'
-    },
-  
-    preferences: {
-      currency: {
-        type: String,
-        enum: ['EUR', 'USD', 'GBP'],
-        default: 'EUR'
-      },
-      measurementSystem: {
-        type: String,
-        enum: ['metric', 'imperial'],
-        default: 'metric'
+      measurementSystem: { 
+        type: String, 
+        enum: ['metric', 'imperial'], 
+        default: 'metric' 
       }
     }
-  }
+  })
+  preferences: Preferences;
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);

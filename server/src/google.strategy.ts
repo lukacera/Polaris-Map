@@ -14,6 +14,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
+  // !! IMPORTANT
+  // When passReqToCallback is used in the super obje
   async validate(
     request: any,
     accessToken: string,
@@ -34,5 +36,5 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         accessToken,
         refreshToken
     };
-}
+  }
 }

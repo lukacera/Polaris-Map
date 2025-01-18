@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { GoogleStrategy } from 'src/google.strategy';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { GoogleStrategy } from 'src/google.strategy';
     AuthService, // Custom authentication logic
     GoogleStrategy, // Register the Google strategy
   ],
-  exports: [AuthService], // Export AuthService if used in other modules
+  exports: [AuthService],
+  controllers: [AuthController], // Export AuthService if used in other modules
 })
 export class AuthModule {}
