@@ -3,6 +3,17 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
+import { GoogleUser } from 'src/types/GoogleUser';
+
+type googleStrategyUser = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture: string;
+  accessToken: string;
+  googleId: string,
+  displayName: string
+};
 
 @Injectable()
 export class AuthService {
@@ -12,14 +23,16 @@ export class AuthService {
   ) {}
 
   generateJwt(payload) {
+    console.log("generating JWT")
     return this.jwtService.sign(payload);
   }
 
-  async signIn(googleUser) {
+  async signIn(googleUser: googleStrategyUser) {
     if (!googleUser) {
       throw new BadRequestException('Unauthenticated');
     }
 
+    console.log(googleUser)
     const userExists = await this.findUserByEmail(googleUser.email);
 
     if (!userExists) {
@@ -30,18 +43,20 @@ export class AuthService {
       lastLogin: new Date()
     });
 
+    console.log("All good!")
     return this.generateJwt({
       sub: userExists._id,
       email: userExists.email,
     });
   }
 
-  async registerUser(googleUser: any) {
+  async registerUser(googleUser: googleStrategyUser) {
+    console.log("Registering user!!")
     try {
       const newUser = new this.userModel({
         googleId: googleUser.googleId,
         email: googleUser.email,
-        displayName: googleUser.firstName + ' ' + googleUser.lastName,
+        displayName: googleUser.displayName,
         profilePicture: googleUser.picture,
         preferences: {
           currency: 'EUR',

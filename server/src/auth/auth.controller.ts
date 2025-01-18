@@ -19,7 +19,7 @@ export class AuthController {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     async auth() {}
 
-    @Get('google/callback')
+    @Get('google-redirect')
     @UseGuards(GoogleOAuthGuard)
     async googleAuthCallback(@Req() req, @Res() res: Response) {
         const token = await this.authService.signIn(req.user);

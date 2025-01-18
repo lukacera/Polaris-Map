@@ -10,7 +10,7 @@ interface LoginRequiredPopupProps {
 export default function LoginPopup({ 
     isOpen, 
     onClose, 
-    onLogin = () => (window.location.href = `${apiUrl}/auth`) 
+    onLogin = () => (window.location.href = `${apiUrl}/auth/google`) 
 }: LoginRequiredPopupProps) {
   if (!isOpen) return null;
   
