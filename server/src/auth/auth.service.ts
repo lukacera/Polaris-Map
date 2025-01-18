@@ -23,10 +23,19 @@ export class AuthService {
   ) {}
 
   generateJwt(payload) {
-    console.log("generating JWT")
-    return this.jwtService.sign(payload);
+    console.log("Starting JWT generation with payload:", payload);
+    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+    
+    try {
+      const token = this.jwtService.sign(payload);
+      console.log("JWT generated successfully");
+      return token;
+    } catch (error) {
+      console.error("JWT generation error:", error);
+      throw error;
+    }
   }
-
+  
   async signIn(googleUser: googleStrategyUser) {
     if (!googleUser) {
       throw new BadRequestException('Unauthenticated');

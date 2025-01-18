@@ -15,15 +15,11 @@ import { JwtStrategy } from 'src/jwt.strategy';
     UsersModule,
     ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: { 
-          expiresIn: '1d' 
-        },
-      }),
-      inject: [ConfigService],
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { 
+        expiresIn: '1d' 
+      },
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema }
@@ -38,4 +34,5 @@ import { JwtStrategy } from 'src/jwt.strategy';
   controllers: [AuthController],
   exports: [AuthService],
 })
+
 export class AuthModule {}
