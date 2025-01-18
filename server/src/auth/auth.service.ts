@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { GoogleUser } from 'src/types/GoogleUser';
+import { Response } from 'express';
 
 type googleStrategyUser = {
   email: string;
@@ -23,25 +24,30 @@ export class AuthService {
   ) {}
 
   generateJwt(payload) {
-    console.log("Starting JWT generation with payload:", payload);
-    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-    
     try {
       const token = this.jwtService.sign(payload);
-      console.log("JWT generated successfully");
       return token;
     } catch (error) {
       console.error("JWT generation error:", error);
       throw error;
     }
   }
-  
+
+  async logout(@Res() response: Response) {
+    try {
+      // Clear the HTTP-only cookie
+      return response.clearCookie('token')
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw new InternalServerErrorException('Error during logout');
+    }
+  }
+    
   async signIn(googleUser: googleStrategyUser) {
     if (!googleUser) {
       throw new BadRequestException('Unauthenticated');
     }
 
-    console.log(googleUser)
     const userExists = await this.findUserByEmail(googleUser.email);
 
     if (!userExists) {
@@ -52,7 +58,6 @@ export class AuthService {
       lastLogin: new Date()
     });
 
-    console.log("All good!")
     return this.generateJwt({
       sub: userExists._id,
       email: userExists.email,
@@ -60,7 +65,6 @@ export class AuthService {
   }
 
   async registerUser(googleUser: googleStrategyUser) {
-    console.log("Registering user!!")
     try {
       const newUser = new this.userModel({
         googleId: googleUser.googleId,
