@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define interfaces for our component's props and data structures
@@ -204,12 +204,24 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
           value={query}
           onChange={handleInputChange}
           placeholder={placeholder}
-          className="w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border
-            border-background focus:outline-none focus:border-blue-500 pl-10 shadow-lg"
+          className="relative w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border
+            border-background focus:outline-none focus:border-blue-500 pl-10 pr-10 shadow-lg"
         />
         <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+        {query && !isLoading && (
+          <button
+            onClick={() => {
+              setQuery('');
+              setSuggestions([]);
+            }}
+            className="absolute right-20 top-1/2 
+            -translate-y-1/2 text-white hover:text-gray-300 focus:outline-none"
+          >
+            <X className="w-6 aspect-square" />
+          </button>
+        )}
         {isLoading && (
-          <div className="absolute right-3 top-2.5">
+          <div className="absolute right-20 top-2.5">
             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-500"></div>
           </div>
         )}
