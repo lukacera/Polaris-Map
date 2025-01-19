@@ -40,12 +40,13 @@ export class VoteController {
   @Post(':propertyId')
   async addVote(
     @Req() req: any,
-    @Param('propertyId') propertyId: string,
-    @Body('voteType') voteType: 'higher' | 'lower'
+    @Body() body: { propertyId: string; voteType: 'higher' | 'lower' }
   ) {
-    console.log("rwq");
+
+    const {propertyId, voteType} = body
+
     // Validate IDs before processing
-    const validUserId = this.validateObjectId(req.user._id, 'user ID');
+    const validUserId = this.validateObjectId(req.user.id, 'user ID');
     const validPropertyId = this.validateObjectId(propertyId, 'property ID');
 
     // Additional validation for voteType

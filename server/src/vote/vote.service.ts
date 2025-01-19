@@ -30,6 +30,7 @@ export class VoteService {
 
   // Add new vote
   async addVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId, voteType: 'higher' | 'lower') {
+    
     const session = await this.userModel.db.startSession();
     
     try {

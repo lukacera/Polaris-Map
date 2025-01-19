@@ -44,10 +44,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(req: any, payload: JwtPayload) {
-    // Log the automatically decoded payload from Passport
-    console.log('Passport decoded payload:', payload);
-    console.log("#24")
-
     const user = await this.userModel.findById(payload.sub).exec();
     
     if (!user) {
