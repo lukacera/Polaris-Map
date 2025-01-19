@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   HttpStatus,
+  Post,
   Req,
   Res,
   UseGuards,
@@ -35,7 +36,7 @@ export class AuthController {
     return res.redirect('http://localhost:5173');
   }
 
-  @Get('logout')
+  @Post('logout')
   async logout(@Res() res: Response) {
     try {
       await this.authService.logout(res);

@@ -10,17 +10,14 @@ import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
 import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
-import ProfileImg from "/JA.jpg"
 import AuthButton from './components/AuthBtn';
-import { useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-
-  const { isLoggedIn } = useAuth(); 
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
@@ -224,11 +221,13 @@ function App() {
           .addTo(map.current!);
       
         createRoot(popupContainer).render(
-          <PropertyPopup
-            property={props}
-            onClose={() => popup.remove()}
-            setIsLoginModalOpen={setIsLoginModalOpen} 
-          />
+          <AuthProvider>
+            <PropertyPopup
+              property={props}
+              onClose={() => popup.remove()}
+              setIsLoginModalOpen={setIsLoginModalOpen}
+            />
+          </AuthProvider>
         );
       });
       
@@ -301,14 +300,8 @@ function App() {
             setIsLoginModalOpen={setIsLoginModalOpen}
           />
           <SearchBar map={map}/>
-          <NewPropBtn onClick={() => {
-              // Check for login
-              setIsLoginModalOpen(true)
-              return
-              
-              // setCoordinates([]);
-              // setIsAddPropModalOpen(true)
-            }}
+          <NewPropBtn setIsLoginModalOpen={setIsLoginModalOpen} 
+          setIsAddPropModalOpen={setIsAddPropModalOpen}
           />
           <button
             onClick={toggleDragMode}

@@ -57,7 +57,7 @@ export default function PopupModal({
       className="fixed inset-0 w-screen h-screen overflow-hidden bg-black/60 
         flex items-center justify-center z-50 backdrop-blur-sm"
     >
-      <div className="bg-background text-white rounded-2xl p-6 w-full max-w-md mx-4 relative shadow-2xl border border-surface-border">
+      <div className="bg-background text-white rounded-2xl p-6 w-full max-w-[35rem] mx-4 relative shadow-2xl border border-surface-border">
         <button
           onClick={onClose}
           className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200 

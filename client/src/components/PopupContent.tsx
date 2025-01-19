@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Property } from '../types/Property';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PropertyPopupProps {
   property: Property;
@@ -8,7 +9,11 @@ interface PropertyPopupProps {
 }
 
 const PropertyPopup = ({ property, onClose, setIsLoginModalOpen }: PropertyPopupProps) => {
+  
+  const { isLoggedIn } = useAuth();
+  
   const handleVoteClick = () => {
+    if (isLoggedIn) return
     setIsLoginModalOpen(true);
   };
 

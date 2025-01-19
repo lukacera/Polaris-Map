@@ -1,6 +1,7 @@
-import React, { Dispatch, SetStateAction, useState, useCallback, useEffect } from 'react';
-import { UserCircle2 } from 'lucide-react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { UserCircle2, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import PopupModal from './UI/PopupModal';
 
 interface AuthButtonProps {
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>
@@ -21,21 +22,6 @@ const AuthButton: React.FC<AuthButtonProps> = ({
     }
   };
 
-  const handleEscapeKey = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      setShowLogoutConfirm(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showLogoutConfirm) {
-      document.addEventListener('keydown', handleEscapeKey);
-      return () => {
-        document.removeEventListener('keydown', handleEscapeKey);
-      };
-    }
-  }, [showLogoutConfirm, handleEscapeKey]);
-
   if (loading) {
     return (
       <div 
@@ -55,35 +41,22 @@ const AuthButton: React.FC<AuthButtonProps> = ({
           className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
         />
 
-        {showLogoutConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex 
-          items-center justify-center z-50">
-            <div 
-              className="bg-background p-6 rounded-lg max-w-sm w-full 
-              mx-4 "
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Are you sure that you want to log out?
-              </h2>
-              
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={() => setShowLogoutConfirm(false)}
-                  className="px-4 py-2 rounded-lg bg-background-lighter text-white hover:bg-background border border-border transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-                >
-                  Yes, logout
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <PopupModal
+          isOpen={showLogoutConfirm}
+          onClose={() => setShowLogoutConfirm(false)}
+          title="Confirm Logout"
+          description="Are you sure that you want to log out?"
+          icon={<LogOut className="w-5 h-5 text-red-400" />}
+          primaryButton={{
+            label: "Yes, logout",
+            onClick: handleLogout,
+            className: "flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-200 font-medium"
+          }}
+          secondaryButton={{
+            label: "Cancel",
+            onClick: () => setShowLogoutConfirm(false)
+          }}
+        />
       </>
     );
   }

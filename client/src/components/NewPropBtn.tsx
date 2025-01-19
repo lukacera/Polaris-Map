@@ -1,46 +1,34 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { Plus } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NewPropBtnProps {
-  onClick: () => void;
-  isDisabled?: boolean;
-  className?: string;
+  setIsAddPropModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const getButtonStyles = (isDisabled: boolean): string => {
-  const baseStyles = `
-    px-4 py-2 
-    bg-accent text-white 
-    shadow-lg rounded-lg 
-    transition-all duration-200 
-    flex items-center space-x-2 
-    font-medium
-  `;
-
-  if (isDisabled) {
-    return `${baseStyles} opacity-50 cursor-not-allowed`;
-  }
-
-  return `${baseStyles} hover:bg-accent-hover`;
-};
-
 const NewPropBtn: React.FC<NewPropBtnProps> = ({
-  onClick,
-  isDisabled = false,
-  className = ''
+  setIsLoginModalOpen,
+  setIsAddPropModalOpen
 }) => {
+  const { isLoggedIn } = useAuth();
+
   const handleClick = () => {
-    if (isDisabled) return;
-    
-    onClick();
+    if (!isLoggedIn) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    setIsAddPropModalOpen(true)
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={isDisabled}
-      className={`${getButtonStyles(isDisabled)} ${className}`}
-      title={isDisabled ? 'Not available' : 'Add new property'}
+      className="px-4 py-2 bg-accent text-white shadow-lg rounded-lg 
+      transition-all duration-200 flex items-center space-x-2 font-medium 
+      hover:bg-accent-hover"
+      title="Add new property"
     >
       <Plus className="w-5 h-5" />
       <span>Add new property</span>
