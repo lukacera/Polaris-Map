@@ -1,22 +1,31 @@
-import { Dispatch, SetStateAction } from 'react';
 import { Property } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
 
 interface PropertyPopupProps {
   property: Property;
   onClose: () => void;
-  setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsLoginModalOpen: (isOpen: boolean) => void;
+  showNotification: (message: string) => void;
 }
 
-const PropertyPopup = ({ property, onClose, setIsLoginModalOpen }: PropertyPopupProps) => {
-  
+const PropertyPopup = ({ 
+  property, 
+  onClose, 
+  setIsLoginModalOpen,
+  showNotification 
+}: PropertyPopupProps) => {
   const { isLoggedIn } = useAuth();
   
   const handleVoteClick = () => {
-    if (isLoggedIn) return
-    setIsLoginModalOpen(true);
+    if (!isLoggedIn) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
+    // Here you would handle the actual vote submission
+    showNotification('Vote submitted!');
   };
-
+  
   return (
     <div className="overflow-hidden bg-white">
       <div className="relative px-5 py-3 bg-accent text-white">

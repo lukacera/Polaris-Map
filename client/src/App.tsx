@@ -12,6 +12,7 @@ import SearchBar from './components/SearchBar';
 import LoginPopup from './components/LoginPopup';
 import AuthButton from './components/AuthBtn';
 import { AuthProvider } from './contexts/AuthContext';
+import Notification from './components/UI/Notifcation';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -22,7 +23,7 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAddPropModalOpen, setIsAddPropModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-
+  
   // Map states
   const [properties, setProperties] = useState<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
@@ -31,7 +32,18 @@ function App() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
+  const [notification, setNotification] = useState<{ message: string; isVisible: boolean }>({
+    message: '',
+    isVisible: false
+  });
 
+  const showNotification = (message: string) => {
+    setNotification({ message, isVisible: true });
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, isVisible: false }));
+    }, 2000);
+  };
+  
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -226,6 +238,7 @@ function App() {
               property={props}
               onClose={() => popup.remove()}
               setIsLoginModalOpen={setIsLoginModalOpen}
+              showNotification={showNotification}
             />
           </AuthProvider>
         );
@@ -327,6 +340,14 @@ function App() {
       </div>
       {isAddPropModalOpen && <ReviewModal mapRef={map} coordinates={coordinates} onClose={() => setIsAddPropModalOpen(false)} />}
       {isLoginModalOpen && <LoginPopup onClose={() => setIsLoginModalOpen(false)} />}
+      {notification.isVisible && (
+        <Notification message={notification.message} 
+        onClose={() => setNotification(prev => ({
+          ...prev,
+          isVisible: false
+        }))} 
+        />
+      )}
     </>
   );
 }
