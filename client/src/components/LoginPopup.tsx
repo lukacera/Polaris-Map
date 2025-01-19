@@ -1,63 +1,20 @@
-import { X, LogIn } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { LogIn } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import PopapModal from "./UI/PopupModal";
 
-interface LoginRequiredPopupProps {
-  onClose: () => void;
-}
-
-export default function LoginPopup({ onClose }: LoginRequiredPopupProps) {
-  
+const LoginPopup = ({ onClose }: { onClose: () => void }) => {
   const { login } = useAuth();
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  const handleLogin = () => {
-    login(); // Call the login function from context
-  };
-
   return (
-    <div
-      onClick={handleBackdropClick}
-      className="fixed inset-0 w-screen h-screen overflow-hidden bg-black/60 
-        flex items-center justify-center z-50 backdrop-blur-sm"
-    >
-      <div className="bg-background text-white rounded-2xl p-6 w-full max-w-md mx-4 relative shadow-2xl border border-surface-border">
-        <button
-          onClick={onClose}
-          className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200 
-              hover:bg-surface-border/10 p-2 rounded-full"
-          type="button"
-        >
-          <X size={18} />
-        </button>
-
-        <div className="mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <LogIn className="w-5 h-5 text-blue-400" />
-            Log In to Continue
-          </h2>
-          <p className="text-gray-400 mt-2">
-            Sign in to unlock this action. 
-          </p>
-        </div>
-
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2.5 text-gray-300 hover:text-white transition-colors duration-200
-                border border-surface-border hover:border-surface-border/70 rounded-xl hover:bg-surface-border/10"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleLogin} // Use the login function here
-            className="flex items-center justify-center px-4 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-xl 
-                transition-all duration-200 font-medium space-x-2"
-          >
+    <PopapModal
+      isOpen={true}
+      onClose={onClose}
+      title="Log In to Continue"
+      description="Sign in to unlock this action."
+      icon={<LogIn className="w-5 h-5 text-blue-400" />}
+      primaryButton={{
+        label: (
+          <div className="flex items-center justify-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 48 48"
@@ -82,9 +39,16 @@ export default function LoginPopup({ onClose }: LoginRequiredPopupProps) {
               <path fill="none" d="M0 0h48v48H0z" />
             </svg>
             <span>Continue with Google</span>
-          </button>
-        </div>
-      </div>
-    </div>
+          </div>
+        ),
+        onClick: login
+      }}
+      secondaryButton={{
+        label: "Cancel",
+        onClick: onClose
+      }}
+    />
   );
-}
+};
+
+export default LoginPopup;

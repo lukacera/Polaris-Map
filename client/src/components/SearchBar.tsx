@@ -229,7 +229,7 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
 
       {suggestions.length > 0 && (
         <div className="absolute z-50 w-64 mt-1 bg-background-lighter border border-background 
-          rounded-lg shadow-lg max-h-96 overflow-y-auto">
+          rounded-lg shadow-lg max-h-[27.5rem] overflow-y-auto">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.mapbox_id}
