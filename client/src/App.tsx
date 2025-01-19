@@ -298,8 +298,6 @@ function App() {
         <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] 
         items-center justify-start gap-5">
           <AuthButton
-            isLoggedIn={isLoggedIn} 
-            profileImage={ProfileImg}
             setIsLoginModalOpen={setIsLoginModalOpen}
           />
           <SearchBar map={map}/>

@@ -68,7 +68,6 @@ export class PropertyController {
   async createNewProperty(@Body() body: any): Promise<Property> {
     const propData: Property = body;
 
-    console.log('Property data:', propData);
     // Validate property data
     const validationErrors = validateProperty(propData);
 

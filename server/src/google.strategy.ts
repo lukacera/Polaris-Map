@@ -23,10 +23,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: GoogleUser,
 ): Promise<any> {
-    console.log('Access Token:', accessToken)
-    console.log('Refresh Token:', refreshToken)
-    console.log('Profile from Google:', profile);
-    
     const { name, emails, photos, id, displayName } = profile;
     
     return {

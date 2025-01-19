@@ -70,6 +70,7 @@ export class AuthService {
     return this.generateJwt({
       sub: userExists._id,
       email: userExists.email,
+      image: userExists.profilePicture
     });
   }
 

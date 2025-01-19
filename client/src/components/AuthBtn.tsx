@@ -1,19 +1,30 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { UserCircle2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AuthButtonProps {
-  isLoggedIn: boolean;
-  profileImage?: string;
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
 const AuthButton: React.FC<AuthButtonProps> = ({ 
-    isLoggedIn, profileImage, setIsLoginModalOpen 
+    setIsLoginModalOpen 
 }) => {
-  if (isLoggedIn && profileImage) {
+
+  const { user, isLoggedIn, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div 
+        className="w-10 h-10 rounded-full bg-gray-300 animate-pulse border-2 border-gray-200 shadow-lg" 
+        aria-label="Loading profile"
+      />
+    );
+  }
+
+  if (isLoggedIn && user) {
     return (
       <img 
-        src={profileImage} 
+        src={user.image} 
         alt="Profile" 
         className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
       />

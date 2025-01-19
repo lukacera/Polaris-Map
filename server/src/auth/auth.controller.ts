@@ -56,9 +56,8 @@ export class AuthController {
 
   @Get('verify-token')
   async verifyToken(@Req() request: Request, @Res() res: Response) {
-    console.log(request.cookies);
     const token = request.cookies['token'];
-  
+    console.log(token)
     if (!token) {
       await this.authService.logout(res);
       return res.status(HttpStatus.UNAUTHORIZED).json({

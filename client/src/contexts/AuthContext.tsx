@@ -1,10 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
+interface User {
+  id: string
+  name: string
+  email: string
+  image: string
+}
+
 interface AuthContextType {
   isLoggedIn: boolean
   loading: boolean
+  user: User | null
   login: () => void
-  logout: () => void
+  logout: () => Promise<void>
   checkAuth: () => Promise<void>
 }
 
@@ -25,37 +33,46 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
 
   // Function to check authentication status
   const checkAuth = async () => {
+    setLoading(true) // Start loading
     try {
-      console.log("verifiyin gfd")
       const response = await fetch('http://localhost:3000/auth/verify-token', {
         credentials: 'include',
       })
       if (response.ok) {
+        const data = await response.json()
         setIsLoggedIn(true)
+        setUser(data.user)
       } else {
         setIsLoggedIn(false)
+        setUser(null)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
       setIsLoggedIn(false)
+      setUser(null)
     } finally {
-      setLoading(false)
+      setLoading(false) // End loading
     }
   }
 
   // Function to log out
   const logout = async () => {
+    setLoading(true) // Start loading
     try {
       await fetch('http://localhost:3000/auth/logout', {
         method: 'POST',
         credentials: 'include',
       })
       setIsLoggedIn(false)
+      setUser(null)
     } catch (error) {
       console.error('Logout failed:', error)
+    } finally {
+      setLoading(false) // End loading
     }
   }
 
@@ -72,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       value={{
         isLoggedIn,
         loading,
+        user,
         login,
         logout,
         checkAuth,
