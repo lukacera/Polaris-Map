@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
 import { VoteModule } from './vote/vote.module';
+import { VoteController } from './vote/vote.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { VoteModule } from './vote/vote.module';
     AuthModule,
     VoteModule
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, VoteController],
   providers: [AppService],
 })
 export class AppModule {}

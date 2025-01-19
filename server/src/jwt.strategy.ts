@@ -18,7 +18,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const extractJwtFromCookie = (req) => {
       let token = null;
       if (req && req.cookies) {
-        token = req.cookies['jwt'];
+        token = req.cookies['token'];
+        // Let's decode and log the token here for demonstration
+        if (token) {
+          const [header, payload, signature] = token.split('.');
+          const decodedPayload = JSON.parse(
+            Buffer.from(payload, 'base64url').toString('utf-8')
+          );
+          console.log('Decoded token from cookie:', decodedPayload);
+        }
       }
       return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     };
@@ -35,10 +43,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: JwtPayload) {
-    const user = await this.userModel.findById(payload.sub).exec();
+  async validate(req: any, payload: JwtPayload) {
+    // Log the automatically decoded payload from Passport
+    console.log('Passport decoded payload:', payload);
+    console.log("#24")
 
-    console.log(user)
+    const user = await this.userModel.findById(payload.sub).exec();
+    
     if (!user) {
       throw new UnauthorizedException('Please log in to continue');
     }

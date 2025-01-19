@@ -6,7 +6,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 
 interface Vote {
   propertyId: mongoose.Schema.Types.ObjectId;
-  voteType: 'higher' | 'lower';
+  voteType: 'higher' | 'lower' | 'equal';
 }
 
 @Injectable()
@@ -17,19 +17,19 @@ export class VoteService {
   ) {}
 
   // Get user's vote for specific property
-  async getUserVote(userId: string, propertyId: string): Promise<Vote> {
+  async getUserVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId): Promise<Vote> {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     return user.votes.find(
-      vote => vote.propertyId.toString() === propertyId
+      vote => vote.propertyId.toString() === propertyId.toString()
     );
   }
 
   // Add new vote
-  async addVote(userId: string, propertyId: string, voteType: 'higher' | 'lower') {
+  async addVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId, voteType: 'higher' | 'lower') {
     const session = await this.userModel.db.startSession();
     
     try {
@@ -48,7 +48,7 @@ export class VoteService {
       }
 
       const existingVote = user.votes.find(
-        vote => vote.propertyId.toString() === propertyId
+        vote => vote.propertyId.toString() === propertyId.toString()
       );
 
       if (existingVote) {
@@ -97,7 +97,7 @@ export class VoteService {
   }
 
   // Remove vote
-  async removeVote(userId: string, propertyId: string) {
+  async removeVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId) {
     const session = await this.userModel.db.startSession();
     
     try {
@@ -110,7 +110,7 @@ export class VoteService {
       }
 
       const voteToRemove = user.votes.find(
-        vote => vote.propertyId.toString() === propertyId
+        vote => vote.propertyId.toString() === propertyId.toString()
       );
 
       if (!voteToRemove) {
@@ -166,7 +166,7 @@ export class VoteService {
   // Helper function to calculate new reliability score
   private calculateNewReliability(
     property: Property, 
-    voteType: 'higher' | 'lower', 
+    voteType: 'higher' | 'lower' | 'equal', 
     isRemoval: boolean = false
   ): number {
     const currentReliability = property.dataReliability;

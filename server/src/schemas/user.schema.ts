@@ -7,7 +7,7 @@ interface Property {
 
 interface Vote {
   propertyId: mongoose.Schema.Types.ObjectId;
-  voteType: 'higher' | 'lower';
+  voteType: 'higher' | 'lower' | "equal";
 }
 
 interface Preferences {
