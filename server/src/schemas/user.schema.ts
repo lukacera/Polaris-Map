@@ -38,7 +38,7 @@ export class User {
 
   @Prop([{
     propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
-    voteType: { type: String, enum: ['higher', 'lower'] },
+    voteType: { type: String, enum: ['higher', 'lower',  'equal'] },
   }])
   votes: Vote[];
 
@@ -67,6 +67,7 @@ export class User {
     }
   })
   preferences: Preferences;
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

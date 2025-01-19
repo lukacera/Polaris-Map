@@ -3,7 +3,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from 'src/google.strategy';
 import { AuthController } from './auth.controller';
@@ -12,7 +11,6 @@ import { JwtStrategy } from 'src/jwt.strategy';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({

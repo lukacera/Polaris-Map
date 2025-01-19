@@ -6,7 +6,7 @@ import { Property, PropertySchema } from 'src/schemas/property.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Property.name, schema: PropertySchema }]), // Registruj model u modulu
+    MongooseModule.forFeature([{ name: Property.name, schema: PropertySchema }]),
   ],
   controllers: [PropertyController],
   providers: [PropertyService],

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { CheckCircle } from 'lucide-react';
 
 interface NotificationProps {
@@ -7,31 +7,46 @@ interface NotificationProps {
 }
 
 const Notification: React.FC<NotificationProps> = ({ message, onClose }) => {
-  const [shouldRender, setShouldRender] = useState(true);
+  const [progress, setProgress] = useState(100);
+  const startTime = useRef(Date.now());
+  const duration = 2000;
 
   useEffect(() => {
-    const showTimer = setTimeout(() => {
-      setShouldRender(false);
-    }, 2000);
+    let animationFrame: number;
 
-    const unmountTimer = setTimeout(() => {
-      onClose();
-    }, 2200); // 2000ms + 200ms for animation
+    const animate = () => {
+      const elapsed = Date.now() - startTime.current;
+      const remaining = Math.max(0, 100 * (1 - elapsed / duration));
+      
+      setProgress(remaining);
+
+      if (elapsed < duration) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setTimeout(onClose, 200);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
 
     return () => {
-      clearTimeout(showTimer);
-      clearTimeout(unmountTimer);
+      cancelAnimationFrame(animationFrame);
     };
   }, [onClose]);
 
   return (
-    <div 
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-200
-        ${shouldRender ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}
-    >
-      <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-        <CheckCircle className="w-5 h-5" />
-        <span className="font-medium">{message}</span>
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fade-in">
+      <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg">
+        <div className="flex items-center gap-2">
+          <CheckCircle className="w-5 h-5" />
+          <span className="font-medium">{message}</span>
+        </div>
+        <div className="h-1 w-full bg-green-700/50 mt-2 rounded overflow-hidden">
+          <div 
+            className="h-full bg-white rounded"
+            style={{ width: `${progress}%`, transition: 'none' }}
+          />
+        </div>
       </div>
     </div>
   );
