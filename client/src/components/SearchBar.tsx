@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -78,10 +78,27 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
   const [suggestions, setSuggestions] = useState<MapboxSuggestion[]>([]);
   const [sessionToken, setSessionToken] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Create ref for the search box container
+  const searchBoxRef = useRef<HTMLDivElement>(null);
 
   // Initialize session token
   useEffect(() => {
     setSessionToken(uuidv4());
+  }, []);
+
+  // Handle clicks outside the search box
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target as Node)) {
+        setSuggestions([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   // Typed debounce function
@@ -180,7 +197,7 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-[20rem]">
+    <div className="relative w-full max-w-[20rem]" ref={searchBoxRef}>
       <div className="relative">
         <input
           type="text"
