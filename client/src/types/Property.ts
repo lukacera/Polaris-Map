@@ -1,5 +1,5 @@
 export type Property = {
-    _id: string; 
+    id: string; 
     geometry: {
         type: 'Point';
         coordinates: [number, number]; 

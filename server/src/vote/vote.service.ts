@@ -32,7 +32,6 @@ export class VoteService {
   async addVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId, voteType: 'higher' | 'lower') {
     
     const session = await this.userModel.db.startSession();
-    
     try {
       session.startTransaction();
 
@@ -47,7 +46,6 @@ export class VoteService {
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-
       const existingVote = user.votes.find(
         vote => vote.propertyId.toString() === propertyId.toString()
       );

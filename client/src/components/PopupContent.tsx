@@ -1,5 +1,7 @@
 import { Property } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
+import { submitVote } from '../utils/submitVote';
+import { useState } from 'react';
 
 interface PropertyPopupProps {
   property: Property;
@@ -8,6 +10,8 @@ interface PropertyPopupProps {
   showNotification: (message: string) => void;
 }
 
+type VoteType = "higher" | "equal" | "lower"
+
 const PropertyPopup = ({ 
   property, 
   onClose, 
@@ -15,15 +19,25 @@ const PropertyPopup = ({
   showNotification 
 }: PropertyPopupProps) => {
   const { isLoggedIn } = useAuth();
-  
-  const handleVoteClick = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleVoteClick = async (voteType: VoteType) => {
     if (!isLoggedIn) {
       setIsLoginModalOpen(true);
       return;
     }
+
+    if (isSubmitting) return;
     
-    // Here you would handle the actual vote submission
-    showNotification('Vote submitted!');
+    setIsSubmitting(true);
+    try {
+      await submitVote(property.id, voteType);
+      showNotification('Vote submitted successfully!');
+    } catch (error) {
+      showNotification('Failed to submit vote. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -98,7 +112,7 @@ const PropertyPopup = ({
 
             <div className="flex gap-1">
               <button
-                onClick={handleVoteClick}
+                onClick={() => handleVoteClick("lower")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
                         hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-xs font-medium group"
               >
@@ -109,7 +123,7 @@ const PropertyPopup = ({
               </button>
 
               <button
-                onClick={handleVoteClick}
+                onClick={() => handleVoteClick("equal")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
                   hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
               >
@@ -120,7 +134,7 @@ const PropertyPopup = ({
               </button>
 
               <button
-                onClick={handleVoteClick}
+                onClick={() => handleVoteClick("higher")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
                         hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-xs font-medium group"
               >

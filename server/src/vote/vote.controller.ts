@@ -47,6 +47,7 @@ export class VoteController {
     // Validate IDs before processing
     const validUserId = this.validateObjectId(req.user.id, 'user ID');
     const validPropertyId = this.validateObjectId(propertyId, 'property ID');
+    console.log("vote type is " + voteType)
 
     // Additional validation for voteType
     if (!voteType || !['higher', 'lower', 'equal'].includes(voteType)) {
