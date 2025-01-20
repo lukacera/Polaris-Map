@@ -28,7 +28,6 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
   
   useEffect(() => {
     setErrors([]);
-    console.log('coordinates', coordinates);
     setFormData({
       price: '',
       type: 'Apartment',
