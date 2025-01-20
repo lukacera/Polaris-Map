@@ -1,13 +1,14 @@
 import { CustomProperty } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
 import { submitVote } from '../utils/submitVote';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 interface PropertyPopupProps {
   property: CustomProperty;
   onClose: () => void;
   setIsLoginModalOpen: (isOpen: boolean) => void;
-  showNotification: (message: string) => void;
+  showNotification: (message: string, type: 'success' | 'error' | 'warning', icon: ReactElement) => void;
 }
 
 type VoteType = "higher" | "equal" | "lower"
@@ -31,10 +32,12 @@ const PropertyPopup = ({
     
     setIsSubmitting(true);
     try {
-      await submitVote(property.id, voteType);
-      showNotification('Vote submitted successfully!');
+      const response = await submitVote(property.id, voteType);
+      if (response.success) showNotification('Vote submitted successfully!', 'success', <CheckCircle />); 
+
+      showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } catch (error) {
-      showNotification('Failed to submit vote. Please try again.');
+      showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } finally {
       setIsSubmitting(false);
     }

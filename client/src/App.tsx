@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature, MapMouseEvent, PointLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Menu, Move, MousePointer } from 'lucide-react';
+import { Menu, Move, MousePointer, CheckCircle } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
 import { Property, CustomProperty } from './types/Property';
@@ -32,13 +32,20 @@ function App() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
-  const [notification, setNotification] = useState<{ message: string; isVisible: boolean; color: string }>({
+  const [notification, setNotification] = useState<{ 
+    message: string; isVisible: boolean; color: string, icon: ReactElement 
+  }>({
     message: '',
     isVisible: false,
-    color: 'bg-green-500' // default color
+    color: 'bg-green-500',
+    icon: <CheckCircle />
   });
   
-  const showNotification = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+  const showNotification = (
+    message: string, 
+    type: 'success' | 'error' | 'warning' = 'success',
+    icon: ReactElement
+  ) => {
     const colors = {
       success: 'bg-green-500',
       error: 'bg-red-500',
@@ -48,9 +55,11 @@ function App() {
     setNotification({ 
       message, 
       isVisible: true, 
-      color: colors[type]
+      color: colors[type],
+      icon
     });
     
+    console.log(colors[type])
     setTimeout(() => {
       setNotification(prev => ({ ...prev, isVisible: false }));
     }, 2000);
@@ -353,7 +362,7 @@ function App() {
       {isAddPropModalOpen && <ReviewModal mapRef={map} coordinates={coordinates} onClose={() => setIsAddPropModalOpen(false)} />}
       {isLoginModalOpen && <LoginPopup onClose={() => setIsLoginModalOpen(false)} />}
       {notification.isVisible && (
-        <Notification message={notification.message} 
+        <Notification notification={notification}
         onClose={() => setNotification(prev => ({
           ...prev,
           isVisible: false
