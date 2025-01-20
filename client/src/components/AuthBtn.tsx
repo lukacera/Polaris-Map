@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 import { UserCircle2, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PopupModal from './UI/PopupModal';
+import DefImg from "/DefProfImg.webp"
 
 interface AuthButtonProps {
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>
@@ -35,7 +36,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({
     return (
       <>
         <img 
-          src={user.image} 
+          src={user.image ?? DefImg} 
           alt="Profile" 
           onClick={() => setShowLogoutConfirm(true)}
           className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
