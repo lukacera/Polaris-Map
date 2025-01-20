@@ -95,6 +95,7 @@ export class AuthService {
       return this.generateJwt({
         sub: savedUser._id,
         email: savedUser.email,
+        image: savedUser.profilePicture
       });
     } catch (error) {
       console.error('Registration error:', error);

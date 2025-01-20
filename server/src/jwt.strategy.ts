@@ -25,7 +25,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           const decodedPayload = JSON.parse(
             Buffer.from(payload, 'base64url').toString('utf-8')
           );
-          console.log('Decoded token from cookie:', decodedPayload);
         }
       }
       return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
@@ -54,9 +53,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       lastLogin: new Date()
     });
 
+    console.log(payload)
+
     return {
       id: payload.sub,
-      email: payload.email
+      email: payload.email,
     };
   }
 }
