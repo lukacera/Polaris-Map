@@ -1,5 +1,5 @@
 export type Property = {
-    id: string; 
+    _id: string; 
     geometry: {
         type: 'Point';
         coordinates: [number, number]; 
@@ -17,4 +17,7 @@ export type Property = {
     updatedAt: string; 
     createdAt: string; 
 };
-  
+
+export type CustomProperty = Omit<Property, "_id"> & {
+  id: string;
+};

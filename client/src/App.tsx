@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Menu, Move, MousePointer } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
-import { Property } from './types/Property';
+import { Property, CustomProperty } from './types/Property';
 import NewPropBtn from './components/NewPropBtn';
 import { createRoot } from 'react-dom/client';
 import PropertyPopup from './components/PopupContent';
@@ -32,13 +32,25 @@ function App() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
-  const [notification, setNotification] = useState<{ message: string; isVisible: boolean }>({
+  const [notification, setNotification] = useState<{ message: string; isVisible: boolean; color: string }>({
     message: '',
-    isVisible: false
+    isVisible: false,
+    color: 'bg-green-500' // default color
   });
-
-  const showNotification = (message: string) => {
-    setNotification({ message, isVisible: true });
+  
+  const showNotification = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+    const colors = {
+      success: 'bg-green-500',
+      error: 'bg-red-500',
+      warning: 'bg-yellow-500'
+    };
+  
+    setNotification({ 
+      message, 
+      isVisible: true, 
+      color: colors[type]
+    });
+    
     setTimeout(() => {
       setNotification(prev => ({ ...prev, isVisible: false }));
     }, 2000);
@@ -223,7 +235,7 @@ function App() {
         if (features[0].geometry.type === 'Point') {
           coordinates = (features[0].geometry as GeoJSON.Point).coordinates.slice();
         }
-        const props = features[0].properties as Property;
+        const props = features[0].properties as CustomProperty;
       
         const popupContainer = document.createElement('div');
       

@@ -1,10 +1,10 @@
-import { Property } from '../types/Property';
+import { CustomProperty } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
 import { submitVote } from '../utils/submitVote';
 import { useState } from 'react';
 
 interface PropertyPopupProps {
-  property: Property;
+  property: CustomProperty;
   onClose: () => void;
   setIsLoginModalOpen: (isOpen: boolean) => void;
   showNotification: (message: string) => void;
