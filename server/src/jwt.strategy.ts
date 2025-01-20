@@ -53,8 +53,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       lastLogin: new Date()
     });
 
-    console.log(payload)
-
     return {
       id: payload.sub,
       email: payload.email,

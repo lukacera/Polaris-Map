@@ -13,7 +13,6 @@ const AuthButton: React.FC<AuthButtonProps> = ({
 }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const { user, isLoggedIn, loading, logout } = useAuth();
-  console.log(user)
   const handleLogout = async () => {
     try {
       await logout();

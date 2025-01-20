@@ -59,7 +59,6 @@ function App() {
       icon
     });
     
-    console.log(colors[type])
     setTimeout(() => {
       setNotification(prev => ({ ...prev, isVisible: false }));
     }, 2000);

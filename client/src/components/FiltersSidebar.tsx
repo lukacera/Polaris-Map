@@ -28,7 +28,6 @@ export const FiltersSidebar: React.FC<{
     bathrooms: [],
   });
 
-  console.log(filters)
   const [appliedFilters, setAppliedFilters] = useState<{
     id: string;
     label: string;
