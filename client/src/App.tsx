@@ -330,23 +330,31 @@ function App() {
   return (
     <>
       <div className="h-screen w-full relative font-poppins">
-        <div className="absolute top-4 left-4 z-10 flex w-[calc(100%-22rem)] 
-        items-center justify-start gap-5">
-          <AuthButton
-            setIsLoginModalOpen={setIsLoginModalOpen}
-          />
-          <SearchBar map={map}/>
-          <NewPropBtn setIsLoginModalOpen={setIsLoginModalOpen} 
-          setIsAddPropModalOpen={setIsAddPropModalOpen}
-          />
-          <button
-            onClick={toggleDragMode}
-            className="bg-mainWhite transition-all duration-200 border shadow-xl
-            p-2 rounded-lg text-black hover:bg-mainWhite-muted flex items-center gap-2"
-          >
-            {!isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
-            {!isDraggable ? 'Drag' : 'Select'}
-          </button>
+        <div className="absolute top-4 left-4 z-10 flex 
+        gap-5 flex-col items-start justify-start
+        sm:items-center sm:justify-start">
+          <div className='flex gap-4 flex-col sm:flex-row'>
+            <AuthButton
+              setIsLoginModalOpen={setIsLoginModalOpen}
+            />
+            <div>
+              <SearchBar map={map}/>
+            </div>
+          </div>
+          <div className='flex flex-row gap-2 text-sm justify-between w-full'>
+            <NewPropBtn setIsLoginModalOpen={setIsLoginModalOpen}
+            setIsAddPropModalOpen={setIsAddPropModalOpen}
+            />
+            <button
+              onClick={toggleDragMode}
+              className="bg-mainWhite transition-all duration-200 border shadow-xl
+              p-2 rounded-lg text-black hover:bg-mainWhite-muted flex justify-center 7
+              items-center gap-2"
+            >
+              {!isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
+              {!isDraggable ? 'Drag' : 'Select'}
+            </button>
+          </div>
         </div>
 
         {!isSidebarOpen && (

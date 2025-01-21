@@ -128,23 +128,29 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-background text-white rounded-2xl p-6 w-full max-w-4xl mx-4 relative shadow-2xl border border-surface-border">
-        <button 
-          onClick={onClose}
-          className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200 
-            hover:bg-surface-border/10 p-2 rounded-full"
-          type="button"
-        >
-          <X size={18} />
-        </button>
-        
-        <h2 className="text-2xl font-bold mb-6">
-          Add New Property
-        </h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-3 gap-5">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+      <div className="bg-background text-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto
+                    relative shadow-2xl border border-surface-border">
+        {/* Header Section */}
+        <div className="sticky top-0 bg-background p-6 pb-4 border-b border-surface-border
+                      flex justify-between items-center">
+          <h2 className="text-xl sm:text-2xl font-bold">
+            Add New Property
+          </h2>
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors duration-200 
+                     hover:bg-surface-border/10 p-2 rounded-full"
+            type="button"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Form Content */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Grid Layout for Form Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Property Type */}
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-300">
@@ -155,9 +161,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  cursor-pointer appearance-none shadow-xl" 
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 cursor-pointer appearance-none shadow-xl" 
               >
                 <option value="Apartment">Apartment</option>
                 <option value="House">House</option>
@@ -174,9 +180,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  cursor-pointer appearance-none shadow-xl"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 cursor-pointer appearance-none shadow-xl"
               >
                 <option value="Buy">For Sale</option>
                 <option value="Rent">For Rent</option>
@@ -194,9 +200,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Enter price"
               />
             </div>
@@ -213,9 +219,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 value={formData.size}
                 min={1}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Enter size"
               />
             </div>
@@ -232,9 +238,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 value={formData.rooms}
                 onChange={handleInputChange}
                 min="1"
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Enter rooms"
               />
             </div>
@@ -252,9 +258,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 max={new Date().getFullYear()}
                 value={formData.yearBuilt}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Enter year"
               />
             </div>
@@ -266,15 +272,15 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               <MapPin size={16} className="mr-2 text-red-400" />
               Location Coordinates
             </label>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 name="coordinate0"
                 value={formData.coordinates[0]}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Longitude"
               />
               <input
@@ -282,21 +288,19 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 name="coordinate1"
                 value={formData.coordinates[1]}
                 onChange={handleInputChange}
-                className="w-full p-2.5 border border-surface-border rounded-xl bg-background text-white 
-                  focus:ring-2 focus:ring-surface-border focus:border-transparent transition-all duration-200
-                  placeholder-gray-500"
+                className="w-full p-2.5 border border-surface-border rounded-xl bg-background 
+                        text-white focus:ring-2 focus:ring-surface-border focus:border-transparent 
+                        transition-all duration-200 placeholder-gray-500"
                 placeholder="Latitude"
               />
             </div>
           </div>
 
+          {/* Error Display */}
           {errors.length > 0 && (
             <div className="space-y-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
               {errors.map((error, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center text-sm text-red-400"
-                >
+                <div key={index} className="flex items-center text-sm text-red-400">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 mr-2" />
                   {error}
                 </div>
@@ -304,20 +308,22 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-surface-border">
+          {/* Action Buttons */}
+          <div className="sticky bottom-0 bg-background pt-4 border-t border-surface-border
+                       flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-gray-300 hover:text-white transition-all duration-200
-                border border-surface-border hover:border-surface-border/70 rounded-xl hover:bg-surface-border/10"
+              className="w-full sm:w-auto px-5 py-2.5 text-gray-300 hover:text-white 
+                      transition-all duration-200 border border-surface-border 
+                      hover:border-surface-border/70 rounded-xl hover:bg-surface-border/10"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-accent text-white rounded-xl transition-all duration-200 font-medium
-                hover:bg-accent-hover"
+              className="w-full sm:w-auto px-5 py-2.5 bg-accent text-white rounded-xl 
+                      transition-all duration-200 font-medium hover:bg-accent-hover"
             >
               Create Property
             </button>

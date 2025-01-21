@@ -197,49 +197,68 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-[20rem]" ref={searchBoxRef}>
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          className="relative w-64 px-4 py-2 bg-background-lighter text-white rounded-lg border
-            border-background focus:outline-none focus:border-blue-500 pl-10 pr-10 shadow-lg"
-        />
-        <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-        {query && !isLoading && (
-          <button
-            onClick={() => {
-              setQuery('');
-              setSuggestions([]);
-            }}
-            className="absolute right-20 top-1/2 
-            -translate-y-1/2 text-white hover:text-gray-300 focus:outline-none"
-          >
-            <X className="w-6 aspect-square" />
-          </button>
-        )}
-        {isLoading && (
-          <div className="absolute right-20 top-2.5">
-            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-500"></div>
+    <div className="relative w-full" ref={searchBoxRef}>
+      <div className="relative flex items-center w-full">
+        {/* Search Input Container */}
+        <div className="relative flex-1 flex items-center">
+          {/* Search Icon */}
+          <Search className="absolute left-3 text-gray-400 w-4 h-4 pointer-events-none" />
+          
+          {/* Input Field */}
+          <input
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            placeholder={placeholder}
+            className="w-full min-w-[16rem] h-10 pl-9 pr-8 bg-background-lighter 
+                     text-white rounded-lg border border-background 
+                     focus:outline-none focus:border-blue-500 shadow-lg"
+          />
+          
+          {/* Clear and Loading Icons Container */}
+          <div className="absolute right-2 flex items-center space-x-1">
+            {query && !isLoading && (
+              <button
+                onClick={() => {
+                  setQuery('');
+                  setSuggestions([]);
+                }}
+                className="p-1 text-gray-400 hover:text-white transition-colors
+                         rounded-full hover:bg-background/50 focus:outline-none"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            {isLoading && (
+              <div className="w-4 h-4">
+                <div className="animate-spin rounded-full w-4 h-4 
+                             border-2 border-gray-400 border-t-blue-500">
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
+      {/* Suggestions Dropdown */}
       {suggestions.length > 0 && (
-        <div className="absolute z-50 w-64 mt-1 bg-background-lighter border border-background 
-          rounded-lg shadow-lg max-h-[27.5rem] overflow-y-auto">
+        <div className="absolute z-50 w-full min-w-[16rem] mt-1 
+                      bg-background-lighter border border-background 
+                      rounded-lg shadow-lg max-h-[27.5rem] overflow-y-auto">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.mapbox_id}
               onClick={() => handleSuggestionSelect(suggestion)}
-              className="w-full px-4 py-2 text-left hover:bg-background focus:bg-background 
-                focus:outline-none text-white"
+              className="w-full px-4 py-2 text-left hover:bg-background 
+                      focus:bg-background focus:outline-none text-white
+                      transition-colors duration-150"
             >
               <div className="font-medium">{suggestion.name}</div>
               {suggestion.full_address && (
-                <div className="text-sm text-gray-400">{suggestion.full_address}</div>
+                <div className="text-sm text-gray-400 truncate">
+                  {suggestion.full_address}
+                </div>
               )}
             </button>
           ))}
