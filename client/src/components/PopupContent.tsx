@@ -8,6 +8,7 @@ interface PropertyPopupProps {
   property: CustomProperty;
   onClose: () => void;
   setIsLoginModalOpen: (isOpen: boolean) => void;
+  TIMEOUT: number;
   showNotification: (message: string, type: 'success' | 'error' | 'warning', icon: ReactElement) => void;
 }
 
@@ -17,7 +18,8 @@ const PropertyPopup = ({
   property, 
   onClose, 
   setIsLoginModalOpen,
-  showNotification 
+  showNotification,
+  TIMEOUT
 }: PropertyPopupProps) => {
   const { isLoggedIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -27,19 +29,21 @@ const PropertyPopup = ({
       setIsLoginModalOpen(true);
       return;
     }
-
     if (isSubmitting) return;
     
     setIsSubmitting(true);
     try {
       const response = await submitVote(property.id, voteType);
-      if (response.success) showNotification('Vote submitted successfully!', 'success', <CheckCircle />); 
+      if (response.success) return showNotification('Vote submitted successfully!', 'success', <CheckCircle />); 
 
       showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } catch (error) {
+      console.error(error);
       showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, TIMEOUT);
     }
   };
   
@@ -115,6 +119,7 @@ const PropertyPopup = ({
 
             <div className="flex gap-1">
               <button
+              disabled={isSubmitting}
                 onClick={() => handleVoteClick("lower")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
                         hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-xs font-medium group"
@@ -126,6 +131,7 @@ const PropertyPopup = ({
               </button>
 
               <button
+                disabled={isSubmitting}
                 onClick={() => handleVoteClick("equal")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
                   hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-xs font-medium group"
@@ -136,7 +142,8 @@ const PropertyPopup = ({
                 OK
               </button>
 
-              <button
+              <button              
+                disabled={isSubmitting}
                 onClick={() => handleVoteClick("higher")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
                         hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-xs font-medium group"

@@ -41,6 +41,8 @@ function App() {
     icon: <CheckCircle />
   });
   
+  // Notification timeout
+  const TIMEOUT = 2000;
   const showNotification = (
     message: string, 
     type: 'success' | 'error' | 'warning' = 'success',
@@ -61,7 +63,7 @@ function App() {
     
     setTimeout(() => {
       setNotification(prev => ({ ...prev, isVisible: false }));
-    }, 2000);
+    }, TIMEOUT);
   };
   
   useEffect(() => {
@@ -259,6 +261,7 @@ function App() {
               onClose={() => popup.remove()}
               setIsLoginModalOpen={setIsLoginModalOpen}
               showNotification={showNotification}
+              TIMEOUT={TIMEOUT}
             />
           </AuthProvider>
         );
