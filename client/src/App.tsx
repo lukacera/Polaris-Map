@@ -249,7 +249,10 @@ function App() {
       
         const popupContainer = document.createElement('div');
       
-        const popup = new mapboxgl.Popup()
+        const popup = new mapboxgl.Popup({
+          maxWidth: '500px', // Set fixed width for the popup
+          className: 'property-popup' // Add custom class for additional styling if needed
+        })
           .setLngLat(coordinates as [number, number])
           .setDOMContent(popupContainer) 
           .addTo(map.current!);
@@ -334,14 +337,16 @@ function App() {
         gap-5 flex-col items-start justify-start
         sm:items-center sm:justify-start">
           <div className='flex gap-4 flex-col sm:flex-row'>
-            <AuthButton
-              setIsLoginModalOpen={setIsLoginModalOpen}
-            />
+            <div className='max-w-[10rem]'>
+              <AuthButton
+                setIsLoginModalOpen={setIsLoginModalOpen}
+              />
+            </div>
             <div>
               <SearchBar map={map}/>
             </div>
           </div>
-          <div className='flex flex-row gap-4 text-sm justify-center w-full'>
+          <div className='flex flex-row gap-4 text-sm justify-start w-full'>
             <NewPropBtn setIsLoginModalOpen={setIsLoginModalOpen}
             setIsAddPropModalOpen={setIsAddPropModalOpen}
             />

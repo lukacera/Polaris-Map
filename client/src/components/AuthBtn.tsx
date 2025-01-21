@@ -64,7 +64,9 @@ const AuthButton: React.FC<AuthButtonProps> = ({
   return (
     <button
       onClick={() => setIsLoginModalOpen(true)}
-      className="flex items-center gap-2 bg-mainWhite px-4 py-2 rounded-lg text-black shadow-lg hover:bg-mainWhite-muted transition-colors duration-200"
+      className="flex items-center gap-2 bg-mainWhite 
+      px-4 py-2 rounded-lg text-black shadow-lg hover:bg-mainWhite-muted 
+      transition-colors duration-200"
     >
       <UserCircle2 className="w-5 h-5" />
       <span className="font-medium">Sign In</span>

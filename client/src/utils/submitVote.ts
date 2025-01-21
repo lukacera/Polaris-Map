@@ -1,10 +1,9 @@
-// src/services/voteService.ts
-
 type VoteType = 'higher' | 'lower' | 'equal';
 
 interface VoteResponse {
   success: boolean;
   message: string;
+  alreadyVotedError?: boolean; 
 }
 
 export const submitVote = async (
@@ -29,13 +28,15 @@ export const submitVote = async (
 
     return {
       success: true,
-      message: 'Vote submitted successfully'
+      message: 'Vote submitted successfully',
+      alreadyVotedError: false
     };
   } catch (error) {
-    console.error('Error submitting vote:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to submit vote';
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to submit vote'
+      message: errorMessage,
+      alreadyVotedError: errorMessage.includes('already voted')
     };
   }
 };
