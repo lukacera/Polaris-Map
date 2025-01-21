@@ -341,7 +341,7 @@ function App() {
               <SearchBar map={map}/>
             </div>
           </div>
-          <div className='flex flex-row gap-2 text-sm justify-between w-full'>
+          <div className='flex flex-row gap-4 text-sm justify-center w-full'>
             <NewPropBtn setIsLoginModalOpen={setIsLoginModalOpen}
             setIsAddPropModalOpen={setIsAddPropModalOpen}
             />
