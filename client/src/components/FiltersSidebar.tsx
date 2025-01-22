@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { 
   DollarSign, 
   Home,
@@ -18,6 +18,7 @@ export const FiltersSidebar: React.FC<{
   isSidebarOpen: boolean;
   onFilterChange?: (filters: FilterState) => void;
   onClose?: () => void;
+  setProperties: Dispatch<SetStateAction<GeoJSON.FeatureCollection>>;
 }> = ({ isSidebarOpen, onFilterChange, onClose }) => {
   
   const [filters, setFilters] = useState<FilterState>({

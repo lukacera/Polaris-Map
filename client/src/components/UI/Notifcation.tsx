@@ -1,8 +1,12 @@
 import React, { useEffect, useState, useRef, ReactElement, cloneElement } from 'react';
-import { CheckCircle } from 'lucide-react';
 
 interface NotificationProps {
-  notification: { message: string; isVisible: boolean; color: string, icon: ReactElement };
+  notification: { 
+    message: string; 
+    isVisible: boolean; 
+    color: string;
+    icon: ReactElement;
+  };
   onClose: () => void;
 }
 
@@ -35,11 +39,14 @@ const Notification: React.FC<NotificationProps> = ({ notification, onClose }) =>
   }, [onClose]);
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fade-in">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
+    animate-fade-in w-full max-w-[25rem] mx-auto px-4">
       <div className={`${notification.color ?? "bg-green-600"} text-white px-4 py-2 rounded-lg shadow-lg`}>
-        <div className="flex items-center gap-2">
-        {cloneElement(notification.icon, { className: "w-5 h-5" })}
-        <span className="font-medium">{notification.message}</span>
+        <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
+          {cloneElement(notification.icon, { 
+            className: "w-5 h-5 flex-shrink-0" 
+          })}
+          <span className="font-medium truncate">{notification.message}</span>
         </div>
         <div className="h-1 w-full bg-green-700/50 mt-2 rounded overflow-hidden">
           <div 
