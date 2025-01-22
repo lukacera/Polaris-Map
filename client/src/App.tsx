@@ -343,6 +343,7 @@ function App() {
           ...prev,
           isVisible: false
         }))} 
+        timeout={TIMEOUT}
         />
       )}
     </>

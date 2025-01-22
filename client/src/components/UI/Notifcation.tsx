@@ -8,12 +8,13 @@ interface NotificationProps {
     icon: ReactElement;
   };
   onClose: () => void;
+  timeout?: number;
 }
 
-const Notification: React.FC<NotificationProps> = ({ notification, onClose }) => {
+const Notification: React.FC<NotificationProps> = ({ notification, onClose, timeout }) => {
   const [progress, setProgress] = useState(100);
   const startTime = useRef(Date.now());
-  const duration = 2000;
+  const duration = timeout ?? 1000;
 
   useEffect(() => {
     let animationFrame: number;
@@ -36,13 +37,13 @@ const Notification: React.FC<NotificationProps> = ({ notification, onClose }) =>
     return () => {
       cancelAnimationFrame(animationFrame);
     };
-  }, [onClose]);
+  }, [onClose, duration]);
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
-    animate-fade-in w-full max-w-[25rem] mx-auto px-4">
+    animate-fade-in w-full max-w-[25rem] mx-auto px-4 text-center">
       <div className={`${notification.color ?? "bg-green-600"} text-white px-4 py-2 rounded-lg shadow-lg`}>
-        <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
+        <div className="flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
           {cloneElement(notification.icon, { 
             className: "w-5 h-5 flex-shrink-0" 
           })}
