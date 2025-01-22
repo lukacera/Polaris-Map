@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature, MapMouseEvent, PointLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Menu, Move, MousePointer, CheckCircle } from 'lucide-react';
+import { Menu, Move, MousePointer, CheckCircle, ArrowRight } from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
 import { CustomProperty } from './types/Property';
@@ -35,6 +35,7 @@ function App() {
 
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [propertyType, setPropertyType] = useState<'buy' | 'rent'>('buy');
 
   const [notification, setNotification] = useState<{ 
     message: string; isVisible: boolean; color: string, icon: ReactElement 
@@ -336,6 +337,38 @@ function App() {
               {!isDraggable ? <Move className="w-5 h-5" /> : <MousePointer className="w-5 h-5" />}
               {!isDraggable ? 'Drag' : 'Select'}
             </button>
+          </div>
+          <div className='flex gap-2 justify-start w-full'>
+          <button 
+            onClick={() => setPropertyType('buy')}
+            className={`transition-all duration-200 shadow-xl
+              px-5 py-2 rounded-lg flex items-center gap-2
+              ${propertyType === 'buy' 
+                ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
+                : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
+              }`}
+          >
+            For sale
+            <ArrowRight 
+              className={`w-4 h-4 transition-transform duration-200
+                ${propertyType === 'buy' ? 'translate-x-1' : ''}`}
+            />
+          </button>
+          <button
+            onClick={() => setPropertyType('rent')}
+            className={`transition-all duration-200 shadow-xl
+              px-5 py-2 rounded-lg flex items-center gap-2
+              ${propertyType === 'rent'
+              ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
+              : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
+              }`}
+          >
+            For rent
+            <ArrowRight 
+              className={`w-4 h-4 transition-transform duration-200
+                ${propertyType === 'rent' ? 'translate-x-1' : ''}`}
+            />
+          </button>
           </div>
         </div>
 
