@@ -8,6 +8,7 @@ interface PropertyFilters {
   minPrice?: number; 
   maxPrice?: number; 
   bedrooms?: string[];
+  status?: "Rent" | "Buy";
 }
 
 @Controller('properties')
@@ -64,12 +65,15 @@ export class PropertyController {
         : [query.bedrooms];
     }
 
+    if (query.status) {
+      console.log(query.status)
+      filters.status = query.status;
+    }
+
     // Get filtered data
     const data = await this.propertyService.getAllProperties(filters);
 
-    // Calculate price ranges from all properties (unfiltered)
-    const allProperties = await this.propertyService.getAllProperties();
-    const prices = allProperties.map(prop => prop.price).filter(price => price != null);
+    const prices = data.map(prop => prop.price).filter(price => price != null);
     
     return {
       minPrice: Math.min(...prices),

@@ -13,6 +13,7 @@ interface FilterState {
   maxPrice: number;
   bedrooms: string[];
   bathrooms: string[];
+  status: "Rent" | "Buy";
 }
 
 export const FiltersSidebar: React.FC<{
@@ -22,7 +23,8 @@ export const FiltersSidebar: React.FC<{
   setProperties: Dispatch<SetStateAction<GeoJSON.FeatureCollection>>;
   minPrice: number | null;
   maxPrice: number | null;
-}> = ({ isSidebarOpen, onFilterChange, onClose, setProperties, minPrice, maxPrice }) => {
+  status: "Rent" | "Buy";
+}> = ({ isSidebarOpen, onFilterChange, onClose, setProperties, minPrice, maxPrice, status }) => {
   const [isLoading, setIsLoading] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
@@ -31,6 +33,7 @@ export const FiltersSidebar: React.FC<{
     maxPrice: 5000,
     bedrooms: [],
     bathrooms: [],
+    status: status
   });
 
   const [appliedFilters, setAppliedFilters] = useState<{
@@ -125,7 +128,7 @@ export const FiltersSidebar: React.FC<{
 
   const handleSubmit = async () => {
     try {
-      const {geoJsonData} = await fetchProperties()
+      const {geoJsonData} = await fetchProperties(status)
       
       setProperties(geoJsonData);
     } catch (error) {
@@ -315,7 +318,8 @@ export const FiltersSidebar: React.FC<{
                 minPrice: minPrice ?? 0,
                 maxPrice: maxPrice ?? 5000,
                 bedrooms: [],
-                bathrooms: []
+                bathrooms: [],
+                status: "Buy" as "Buy" | "Rent"
               };
               setFilters(resetFilters);
               setAppliedFilters([]); 

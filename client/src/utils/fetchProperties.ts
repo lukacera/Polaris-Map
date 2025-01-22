@@ -2,9 +2,10 @@ import { Property } from "../types/Property";
 import { FeatureCollection } from 'geojson';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-export const fetchProperties = async (): Promise<{ geoJsonData: FeatureCollection, minPrice: number, maxPrice: number }> => {
+export const fetchProperties = async (status: "Rent" | "Buy"): Promise<{ geoJsonData: FeatureCollection, minPrice: number, maxPrice: number }> => {
     try {
-      const response = await fetch(`${apiUrl}/properties`);
+      const params = new URLSearchParams({ status });
+      const response = await fetch(`${apiUrl}/properties?${params.toString()}`);
       const data: {
         data: Property[];
         minPrice: number;
@@ -34,6 +35,7 @@ export const fetchProperties = async (): Promise<{ geoJsonData: FeatureCollectio
         }))
       };
 
+      console.log(geoJsonData);
       return {
         geoJsonData: geoJsonData, 
         minPrice: data.minPrice, 

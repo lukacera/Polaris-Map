@@ -35,7 +35,7 @@ function App() {
 
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
-  const [propertyType, setPropertyType] = useState<'buy' | 'rent'>('buy');
+  const [status, setStatus] = useState<'Buy' | "Rent">('Buy');
 
   const [notification, setNotification] = useState<{ 
     message: string; isVisible: boolean; color: string, icon: ReactElement 
@@ -73,7 +73,7 @@ function App() {
   
   useEffect(() => {
     const fetchData = async () => {
-      const {geoJsonData, maxPrice, minPrice} = await fetchProperties();
+      const {geoJsonData, maxPrice, minPrice} = await fetchProperties(status);
 
       setProperties(geoJsonData);
       setMinPrice(minPrice);
@@ -85,9 +85,9 @@ function App() {
     };
 
     fetchData();
-  }, []);
+  }, [status]);
 
-  console.log(minPrice)
+  console.log(properties.features.length);
   useEffect(() => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
@@ -340,10 +340,10 @@ function App() {
           </div>
           <div className='flex gap-2 justify-start w-full'>
           <button 
-            onClick={() => setPropertyType('buy')}
+            onClick={() => setStatus('Buy')}
             className={`transition-all duration-200 shadow-xl
               px-5 py-2 rounded-lg flex items-center gap-2
-              ${propertyType === 'buy' 
+              ${status === 'Buy' 
                 ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
                 : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
               }`}
@@ -351,14 +351,14 @@ function App() {
             For sale
             <ArrowRight 
               className={`w-4 h-4 transition-transform duration-200
-                ${propertyType === 'buy' ? 'translate-x-1' : ''}`}
+                ${status === 'Buy' ? 'translate-x-1' : ''}`}
             />
           </button>
           <button
-            onClick={() => setPropertyType('rent')}
+            onClick={() => setStatus('Rent')}
             className={`transition-all duration-200 shadow-xl
               px-5 py-2 rounded-lg flex items-center gap-2
-              ${propertyType === 'rent'
+              ${status === 'Rent'
               ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
               : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
               }`}
@@ -366,7 +366,7 @@ function App() {
             For rent
             <ArrowRight 
               className={`w-4 h-4 transition-transform duration-200
-                ${propertyType === 'rent' ? 'translate-x-1' : ''}`}
+                ${status === 'Rent' ? 'translate-x-1' : ''}`}
             />
           </button>
           </div>
@@ -387,6 +387,7 @@ function App() {
         setProperties={setProperties}
         maxPrice={maxPrice}
         minPrice={minPrice}
+        status={status}
         />
         <div ref={mapContainer} className="w-full h-full" />
       </div>

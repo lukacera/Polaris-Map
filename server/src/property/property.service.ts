@@ -9,6 +9,7 @@ interface FilterQuery {
   minPrice?: number; 
   maxPrice?: number; 
   bedrooms?: string[];
+  status?: "Rent" | "Buy";
 }
 
 @Injectable()
@@ -54,6 +55,10 @@ export class PropertyService {
           query.rooms = { $in: filters.bedrooms.map(Number) };
         }
       }
+    }
+
+    if (filters?.status) {
+      query.status = filters.status;
     }
 
     return this.propertyModel.find(query).exec();
