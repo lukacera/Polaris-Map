@@ -2,14 +2,7 @@ import { Body, Controller, Get, HttpException, HttpStatus, Post, Query } from '@
 import { PropertyService } from './property.service';
 import { Property } from 'src/schemas/property.schema';
 import { validateProperty } from 'utils/validatePropData';
-
-interface PropertyFilters {
-  propertyTypes?: string[];
-  minPrice?: number; 
-  maxPrice?: number; 
-  bedrooms?: string[];
-  status?: "Rent" | "Buy";
-}
+import { PropFilterQuery } from 'src/types/PropFilterQuery';
 
 @Controller('properties')
 export class PropertyController {
@@ -22,7 +15,13 @@ export class PropertyController {
     data: Property[];
   }> {
     // Parse and transform query parameters
-    const filters: PropertyFilters = {};
+    const filters: PropFilterQuery = {
+      bedrooms: [],
+      maxPrice: undefined,
+      minPrice: undefined,
+      propertyTypes: [],
+      status: 'Buy'
+    };
 
     if (query.propertyTypes) {
       filters.propertyTypes = Array.isArray(query.propertyTypes)
@@ -60,6 +59,7 @@ export class PropertyController {
     }
 
     if (query.bedrooms) {
+      console.log(query.bedrooms)
       filters.bedrooms = Array.isArray(query.bedrooms)
         ? query.bedrooms
         : [query.bedrooms];
@@ -75,6 +75,7 @@ export class PropertyController {
 
     const prices = data.map(prop => prop.price).filter(price => price != null);
     
+    console.log(query)
     return {
       minPrice: Math.min(...prices),
       maxPrice: Math.max(...prices),

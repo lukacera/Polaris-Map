@@ -14,6 +14,7 @@ import AuthButton from './components/AuthBtn';
 import { AuthProvider } from './contexts/AuthContext';
 import Notification from './components/UI/Notifcation';
 import { fetchProperties } from './utils/fetchProperties';
+import { FilterState } from './types/FilterState';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -73,7 +74,14 @@ function App() {
   
   useEffect(() => {
     const fetchData = async () => {
-      const {geoJsonData, maxPrice, minPrice} = await fetchProperties(status);
+      const placeholderFilters: FilterState = {
+        minPrice: 0,
+        maxPrice: 0,
+        bedrooms: [],
+        propertyTypes: [],
+        status: status
+      }
+      const {geoJsonData, maxPrice, minPrice} = await fetchProperties(placeholderFilters);
 
       setProperties(geoJsonData);
       setMinPrice(minPrice);

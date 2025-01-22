@@ -1,21 +1,50 @@
 import { Property } from "../types/Property";
 import { FeatureCollection } from 'geojson';
+import { FilterState } from "../types/FilterState";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-export const fetchProperties = async (status: "Rent" | "Buy"): Promise<{ geoJsonData: FeatureCollection, minPrice: number, maxPrice: number }> => {
+
+export const fetchProperties = async (filters: FilterState): Promise<{ 
+  geoJsonData: FeatureCollection, 
+  minPrice: number, 
+  maxPrice: number 
+}> => {
     try {
-      const params = new URLSearchParams({ status });
+      // Initialize URL parameters
+      const params = new URLSearchParams();
+      
+      // Add status parameter
+      params.append('status', filters.status);
+
+      console.log(filters.propertyTypes)
+      // Add property types if present
+      if (filters.propertyTypes.length > 0) {
+        params.append('types', filters.propertyTypes.join(','));
+      }
+
+      // Add price range
+      if (filters.minPrice) {
+        params.append('minPrice', filters.minPrice.toString());
+      }
+      if (filters.maxPrice) {
+        params.append('maxPrice', filters.maxPrice.toString());
+      }
+
+      // Add bedrooms if present
+      if (filters.bedrooms.length > 0) {
+        params.append('bedrooms', filters.bedrooms.join(','));
+      }
+
       const response = await fetch(`${apiUrl}/properties?${params.toString()}`);
       const data: {
         data: Property[];
         minPrice: number;
         maxPrice: number;
       } = await response.json();
-      console.log(data);
+
       const geoJsonData: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
-        features: data.data.map((property: Property, index: number) => (
-          {
+        features: data.data.map((property: Property, index: number) => ({
           type: 'Feature',
           id: property._id || index,
           properties: {
@@ -35,10 +64,9 @@ export const fetchProperties = async (status: "Rent" | "Buy"): Promise<{ geoJson
         }))
       };
 
-      console.log(geoJsonData);
       return {
-        geoJsonData: geoJsonData, 
-        minPrice: data.minPrice, 
+        geoJsonData: geoJsonData,
+        minPrice: data.minPrice,
         maxPrice: data.maxPrice
       };
       
@@ -48,8 +76,8 @@ export const fetchProperties = async (status: "Rent" | "Buy"): Promise<{ geoJson
         geoJsonData: {
           type: 'FeatureCollection',
           features: []
-        }, 
-        minPrice: 0, 
+        },
+        minPrice: 0,
         maxPrice: 0
       };
     }
