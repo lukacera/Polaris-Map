@@ -1,10 +1,11 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { 
   DollarSign, 
   Home,
   Bed,
   X
 } from 'lucide-react';
+import { fetchProperties } from '../utils/fetchProperties';
 
 interface FilterState {
   propertyTypes: string[];
@@ -19,7 +20,10 @@ export const FiltersSidebar: React.FC<{
   onFilterChange?: (filters: FilterState) => void;
   onClose?: () => void;
   setProperties: Dispatch<SetStateAction<GeoJSON.FeatureCollection>>;
-}> = ({ isSidebarOpen, onFilterChange, onClose }) => {
+  minPrice: number | null;
+  maxPrice: number | null;
+}> = ({ isSidebarOpen, onFilterChange, onClose, setProperties, minPrice, maxPrice }) => {
+  const [isLoading, setIsLoading] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
@@ -34,6 +38,21 @@ export const FiltersSidebar: React.FC<{
     label: string;
     value: string;
   }[]>([]);
+
+  useEffect(() => {
+    if (minPrice === 0 && maxPrice === 0) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+      if (minPrice !== null && maxPrice !== null) {
+        setFilters(prev => ({
+          ...prev,
+          minPrice: Math.floor(minPrice),
+          maxPrice: Math.ceil(maxPrice)
+        }));
+      }
+    }
+  }, [minPrice, maxPrice]);
 
   const propertyTypes = [
     'Apartment',
@@ -104,6 +123,16 @@ export const FiltersSidebar: React.FC<{
     onFilterChange?.(newFilters);
   };
 
+  const handleSubmit = async () => {
+    try {
+      const {geoJsonData} = await fetchProperties()
+      
+      setProperties(geoJsonData);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    }
+  };
+
   return (
     <div 
       className={`absolute top-0 right-0 h-full rounded-l-lg
@@ -120,6 +149,7 @@ export const FiltersSidebar: React.FC<{
           <X className="w-5 h-5" />
         </button>
       </div>
+
       <div className="px-6 mt-5 flex flex-col gap-7">
         {/* Property Type Section */}
         <div className="space-y-4">
@@ -155,62 +185,73 @@ export const FiltersSidebar: React.FC<{
             <span>Price Range</span>
           </div>
           
-          <div className="space-y-6 ml-2">
-            <label className="text-sm text-gray-400">Minimum</label>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">$</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={filters.minPrice}
-                  onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                  className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 
-                  [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full 
-                  [&::-webkit-slider-thumb]:bg-surface-active 
-                  [&::-webkit-slider-thumb]:cursor-pointer"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={filters.minPrice}
-                  onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border 
-                  border-gray-700 focus:outline-none focus:border-blue-500"
-                />
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
-            <div>
-              <label className="text-sm text-gray-400">Maximum</label>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">$</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={filters.maxPrice}
-                  onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
-                  className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none 
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 
-                  [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full 
-                  [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="5000"
-                  step="100"
-                  value={filters.maxPrice}
-                  onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
-                  className="w-24 px-2 py-1 text-sm bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
-                />
+          ) : (
+            <div className="flex flex-col gap-7 ml-2">
+                <div className="flex flex-col items-start w-full space-y-3">
+                  <label className="text-sm text-gray-400">Minimum</label>
+                  <div className='flex items-center space-x-2 w-full'>
+                    <span className="text-sm">$</span>
+                    <input
+                      type="range"
+                      min={minPrice ?? 0}
+                      max={maxPrice ?? 5000}
+                      step={((maxPrice ?? 5000) - (minPrice ?? 0)) / 100}
+                      value={filters.minPrice}
+                      onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
+                      className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
+                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
+                      [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
+                      [&::-webkit-slider-thumb]:bg-surface-active
+                      [&::-webkit-slider-thumb]:cursor-pointer"
+                    />
+                  </div>
+                  <input
+                    type="number"
+                    min={minPrice ?? 0}
+                    max={maxPrice ?? 5000}
+                    step={10000}
+                    value={filters.minPrice}
+                    onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
+                    className=" px-2 py-1 text-sm bg-gray-800 rounded border 
+                    border-gray-700 focus:outline-none focus:border-blue-500"
+                  />
+              </div>
+              <div>
+                <div className="flex flex-col items-start w-full space-y-3">
+                  <label className="text-sm text-gray-400">Maximum</label>
+                  <div className='flex items-center space-x-2 w-full'>
+                    <span className="text-sm">$</span>
+                    <input
+                      type="range"
+                      min={minPrice ?? 0}
+                      max={maxPrice ?? 5000}
+                      step={((maxPrice ?? 5000) - (minPrice ?? 0)) / 100}
+                      value={filters.maxPrice}
+                      onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
+                      className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
+                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
+                      [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
+                      [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
+                    />
+                  </div>
+                  <input
+                    type="number"
+                    min={minPrice ?? 0}
+                    max={maxPrice ?? 5000}
+                    step={10000}
+                    value={filters.maxPrice}
+                    onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
+                    className=" px-2 py-1 text-sm bg-gray-800 rounded border 
+                    border-gray-700 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Bedrooms Section */}
@@ -260,7 +301,7 @@ export const FiltersSidebar: React.FC<{
 
         <div className="flex gap-5 my-7">
           <button
-            onClick={() => onFilterChange?.(filters)}
+            onClick={handleSubmit}
             className="w-full bg-accent hover:bg-accent-hover text-white py-2 
             rounded-md transition-colors"
           >
@@ -271,8 +312,8 @@ export const FiltersSidebar: React.FC<{
             onClick={() => {
               const resetFilters = {
                 propertyTypes: [],
-                minPrice: 0,
-                maxPrice: 5000,
+                minPrice: minPrice ?? 0,
+                maxPrice: maxPrice ?? 5000,
                 bedrooms: [],
                 bathrooms: []
               };

@@ -15,7 +15,11 @@ export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
   @Get()
-  async getAllProperties(@Query() query: any): Promise<Property[]> {
+  async getAllProperties(@Query() query: any): Promise<{
+    minPrice: number;
+    maxPrice: number;
+    data: Property[];
+  }> {
     // Parse and transform query parameters
     const filters: PropertyFilters = {};
 
@@ -60,8 +64,18 @@ export class PropertyController {
         : [query.bedrooms];
     }
 
-    // Pass filters to the service
-    return this.propertyService.getAllProperties(filters);
+    // Get filtered data
+    const data = await this.propertyService.getAllProperties(filters);
+
+    // Calculate price ranges from all properties (unfiltered)
+    const allProperties = await this.propertyService.getAllProperties();
+    const prices = allProperties.map(prop => prop.price).filter(price => price != null);
+    
+    return {
+      minPrice: Math.min(...prices),
+      maxPrice: Math.max(...prices),
+      data
+    };
   }
 
   @Post()

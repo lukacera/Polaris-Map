@@ -33,6 +33,9 @@ function App() {
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [isDraggable, setIsDraggable] = useState(true);
 
+  const [minPrice, setMinPrice] = useState<number | null>(null);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+
   const [notification, setNotification] = useState<{ 
     message: string; isVisible: boolean; color: string, icon: ReactElement 
   }>({
@@ -68,9 +71,22 @@ function App() {
   };
   
   useEffect(() => {
-    fetchProperties({map, setProperties});
+    const fetchData = async () => {
+      const {geoJsonData, maxPrice, minPrice} = await fetchProperties();
+
+      setProperties(geoJsonData);
+      setMinPrice(minPrice);
+      setMaxPrice(maxPrice);
+
+      if (map.current?.getSource('realEstate')) {
+        (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  console.log(minPrice)
   useEffect(() => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
@@ -332,7 +348,13 @@ function App() {
             <Menu size={24} />
           </button>
         )}
-        <FiltersSidebar isSidebarOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
+        <FiltersSidebar 
+        isSidebarOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)}
+        setProperties={setProperties}
+        maxPrice={maxPrice}
+        minPrice={minPrice}
+        />
         <div ref={mapContainer} className="w-full h-full" />
       </div>
       {isAddPropModalOpen && <ReviewModal mapRef={map} coordinates={coordinates} onClose={() => setIsAddPropModalOpen(false)} />}

@@ -1,19 +1,19 @@
 import { Property } from "../types/Property";
+import { FeatureCollection } from 'geojson';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-type Props = {
-    setProperties: (properties: GeoJSON.FeatureCollection) => void;
-    map: React.MutableRefObject<mapboxgl.Map | null>;
-}
-
-export const fetchProperties = async ({map, setProperties}: Props) => {
+export const fetchProperties = async (): Promise<{ geoJsonData: FeatureCollection, minPrice: number, maxPrice: number }> => {
     try {
       const response = await fetch(`${apiUrl}/properties`);
-      const data = await response.json();
-      
+      const data: {
+        data: Property[];
+        minPrice: number;
+        maxPrice: number;
+      } = await response.json();
+      console.log(data);
       const geoJsonData: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
-        features: data.map((property: Property, index: number) => (
+        features: data.data.map((property: Property, index: number) => (
           {
           type: 'Feature',
           id: property._id || index,
@@ -34,12 +34,21 @@ export const fetchProperties = async ({map, setProperties}: Props) => {
         }))
       };
 
-      setProperties(geoJsonData);
-
-      if (map.current?.getSource('realEstate')) {
-        (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);
-      }
+      return {
+        geoJsonData: geoJsonData, 
+        minPrice: data.minPrice, 
+        maxPrice: data.maxPrice
+      };
+      
     } catch (error) {
       console.error('Error fetching properties:', error);
+      return {
+        geoJsonData: {
+          type: 'FeatureCollection',
+          features: []
+        }, 
+        minPrice: 0, 
+        maxPrice: 0
+      };
     }
   };
