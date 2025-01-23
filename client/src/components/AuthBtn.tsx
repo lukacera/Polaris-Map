@@ -8,11 +8,11 @@ interface AuthButtonProps {
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const AuthButton: React.FC<AuthButtonProps> = ({ 
-    setIsLoginModalOpen 
-}) => {
+const AuthButton: React.FC<AuthButtonProps> = ({ setIsLoginModalOpen }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const { user, isLoggedIn, loading, logout } = useAuth();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -35,8 +35,9 @@ const AuthButton: React.FC<AuthButtonProps> = ({
     return (
       <>
         <img 
-          src={user.image ?? DefImg} 
+          src={imgError ? DefImg : user.image} 
           alt="Profile" 
+          onError={() => setImgError(true)}
           onClick={() => setShowLogoutConfirm(true)}
           className="w-10 h-10 rounded-full object-cover border-2 border-mainWhite shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
         />

@@ -84,8 +84,8 @@ function App() {
       const {geoJsonData, maxPrice, minPrice} = await fetchProperties(placeholderFilters);
 
       setProperties(geoJsonData);
-      setMinPrice(minPrice);
-      setMaxPrice(maxPrice);
+      setMinPrice(Math.ceil(minPrice / 100) * 100);
+      setMaxPrice(Math.floor(maxPrice / 1000) * 1000);
 
       if (map.current?.getSource('realEstate')) {
         (map.current.getSource('realEstate') as mapboxgl.GeoJSONSource).setData(geoJsonData);

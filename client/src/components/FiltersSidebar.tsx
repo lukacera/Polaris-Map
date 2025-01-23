@@ -75,27 +75,35 @@ export const FiltersSidebar: React.FC<{
   };
 
   const handlePriceChange = (value: number, type: 'minPrice' | 'maxPrice') => {
-    const newFilters = { ...filters, [type]: value };
-    setFilters(newFilters);
+    let newValue = Math.round(value);
     
+    if (type === 'minPrice') {
+      newValue = Math.min(newValue, filters.maxPrice);
+    } else {
+      console.log(newValue, filters.minPrice)
+      newValue = Math.max(newValue, filters.minPrice);
+    }
+  
+    const newFilters = { ...filters, [type]: newValue };
+    setFilters(newFilters);
+  
     const existingPriceFilter = appliedFilters.find(f => f.id === `price-${type}`);
     if (existingPriceFilter) {
       setAppliedFilters(appliedFilters.map(f => 
         f.id === `price-${type}` 
-          ? { ...f, value: `$${value}` }
+          ? { ...f, value: `$${newValue}` }
           : f
       ));
     } else {
       setAppliedFilters([...appliedFilters, {
         id: `price-${type}`,
         label: `Price ${type === 'minPrice' ? 'From' : 'To'}`,
-        value: `$${value}`
+        value: `$${newValue}`
       }]);
     }
-    
+  
     onFilterChange?.(newFilters);
   };
-
   const handleBedroomChange = (count: string) => {
     const updatedBedrooms = filters.bedrooms.includes(count)
       ? filters.bedrooms.filter(b => b !== count)
@@ -130,9 +138,9 @@ export const FiltersSidebar: React.FC<{
   return (
     <div 
       className={`absolute top-0 right-0 h-full rounded-l-lg
-        bg-background backdrop-blur-sm text-gray-100 z-10 
+        bg-background backdrop-blur-sm text-gray-100 z-10 border-l border-gray-500  
         transition-all duration-300 overflow-y-auto overflow-x-hidden
-        ${isSidebarOpen ? 'w-80' : 'w-0'}`}
+        ${isSidebarOpen ? 'sm:w-96' : 'w-0'}`}
     >
     <div className="absolute top-0 left-0 right-0 bg-background z-20 border-b
     border-gray-500">
@@ -196,7 +204,7 @@ export const FiltersSidebar: React.FC<{
                         type="range"
                         min={minPrice ?? 0}
                         max={maxPrice ?? 5000}
-                        step={((maxPrice ?? 5000) - (minPrice ?? 0)) / 100}
+                        step={10000}
                         value={filters.minPrice}
                         onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
                         className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
@@ -226,7 +234,7 @@ export const FiltersSidebar: React.FC<{
                         type="range"
                         min={minPrice ?? 0}
                         max={maxPrice ?? 5000}
-                        step={((maxPrice ?? 5000) - (minPrice ?? 0)) / 100}
+                        step={10000}
                         value={filters.maxPrice}
                         onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
                         className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
