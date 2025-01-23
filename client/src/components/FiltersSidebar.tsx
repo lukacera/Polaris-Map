@@ -80,7 +80,6 @@ export const FiltersSidebar: React.FC<{
     if (type === 'minPrice') {
       newValue = Math.min(newValue, filters.maxPrice);
     } else {
-      console.log(newValue, filters.minPrice)
       newValue = Math.max(newValue, filters.minPrice);
     }
   
@@ -104,6 +103,7 @@ export const FiltersSidebar: React.FC<{
   
     onFilterChange?.(newFilters);
   };
+
   const handleBedroomChange = (count: string) => {
     const updatedBedrooms = filters.bedrooms.includes(count)
       ? filters.bedrooms.filter(b => b !== count)
@@ -125,6 +125,31 @@ export const FiltersSidebar: React.FC<{
     onFilterChange?.(newFilters);
   };
 
+  const handleAppliedFilterRemove = (filterId: string) => {
+    const [type, value] = filterId.split('-');
+    const newFilters = { ...filters };
+    
+    switch (type) {
+      case 'type':
+        newFilters.propertyTypes = filters.propertyTypes.filter(t => t !== value);
+        break;
+      case 'bedroom':
+        newFilters.bedrooms = filters.bedrooms.filter(b => b !== value);
+        break;
+      case 'price':
+        if (value === 'minPrice') {
+          newFilters.minPrice = minPrice ?? 0;
+        } else {
+          newFilters.maxPrice = maxPrice ?? 5000;
+        }
+        break;
+    }
+    
+    setFilters(newFilters);
+    setAppliedFilters(appliedFilters.filter(f => f.id !== filterId));
+    onFilterChange?.(newFilters);
+  };
+
   const handleSubmit = async () => {
     try {
       const {geoJsonData} = await fetchProperties(filters)
@@ -140,21 +165,21 @@ export const FiltersSidebar: React.FC<{
       className={`absolute top-0 right-0 h-full rounded-l-lg
         bg-background backdrop-blur-sm text-gray-100 z-10 border-l border-gray-500  
         transition-all duration-300 overflow-y-auto overflow-x-hidden
-        ${isSidebarOpen ? 'sm:w-96' : 'w-0'}`}
+        ${isSidebarOpen ? 'w-96' : 'w-0'}`}
     >
-    <div className="absolute top-0 left-0 right-0 bg-background z-20 border-b
-    border-gray-500">
-      <div className="flex justify-between items-center p-6">
-        <h2 className="text-xl font-semibold">Filters</h2>
-        <button 
-          onClick={onClose}
-          className="p-1 hover:bg-slate-800 rounded-full transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+      <div className="absolute top-0 left-0 right-0 bg-background z-20 border-b
+      border-gray-500">
+        <div className="flex justify-between items-center p-6">
+          <h2 className="text-xl font-semibold">Filters</h2>
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-slate-800 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-    </div>
-    <div className="h-full overflow-y-auto pt-20">
+      <div className="h-full overflow-y-auto pt-20">
         <div className="px-6 mt-5 flex flex-col gap-7">
           {/* Property Type Section */}
           <div className="space-y-4">
@@ -196,34 +221,34 @@ export const FiltersSidebar: React.FC<{
               </div>
             ) : (
               <div className="flex flex-col gap-7 ml-2">
-                  <div className="flex flex-col items-start w-full space-y-3">
-                    <label className="text-sm text-gray-400">Minimum</label>
-                    <div className='flex items-center space-x-2 w-full'>
-                      <span className="text-sm">$</span>
-                      <input
-                        type="range"
-                        min={minPrice ?? 0}
-                        max={maxPrice ?? 5000}
-                        step={10000}
-                        value={filters.minPrice}
-                        onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                        className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
-                        [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
-                        [&::-webkit-slider-thumb]:bg-surface-active
-                        [&::-webkit-slider-thumb]:cursor-pointer"
-                      />
-                    </div>
+                <div className="flex flex-col items-start w-full space-y-3">
+                  <label className="text-sm text-gray-400">Minimum</label>
+                  <div className='flex items-center space-x-2 w-full'>
+                    <span className="text-sm">$</span>
                     <input
-                      type="number"
+                      type="range"
                       min={minPrice ?? 0}
                       max={maxPrice ?? 5000}
                       step={10000}
                       value={filters.minPrice}
                       onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                      className=" px-2 py-1 text-sm bg-gray-800 rounded border 
-                      border-gray-700 focus:outline-none focus:border-blue-500"
+                      className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
+                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
+                      [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
+                      [&::-webkit-slider-thumb]:bg-surface-active
+                      [&::-webkit-slider-thumb]:cursor-pointer"
                     />
+                  </div>
+                  <input
+                    type="number"
+                    min={minPrice ?? 0}
+                    max={maxPrice ?? 5000}
+                    step={10000}
+                    value={filters.minPrice}
+                    onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
+                    className="px-2 py-1 text-sm bg-gray-800 rounded border 
+                    border-gray-700 focus:outline-none focus:border-blue-500"
+                  />
                 </div>
                 <div>
                   <div className="flex flex-col items-start w-full space-y-3">
@@ -250,7 +275,7 @@ export const FiltersSidebar: React.FC<{
                       step={10000}
                       value={filters.maxPrice}
                       onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
-                      className=" px-2 py-1 text-sm bg-gray-800 rounded border 
+                      className="px-2 py-1 text-sm bg-gray-800 rounded border 
                       border-gray-700 focus:outline-none focus:border-blue-500"
                     />
                   </div>
@@ -292,9 +317,7 @@ export const FiltersSidebar: React.FC<{
                 >
                   <span>{filter.label}: {filter.value}</span>
                   <button
-                    onClick={() => {
-                      setAppliedFilters(appliedFilters.filter(f => f.id !== filter.id));
-                    }}
+                    onClick={() => handleAppliedFilterRemove(filter.id)}
                     className="hover:text-red-400 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -304,10 +327,10 @@ export const FiltersSidebar: React.FC<{
             </div>
           )}
 
-          <div className="flex gap-5 my-7">
+          <div className="flex gap-5 my-7 flex-col sm:flex-row">
             <button
               onClick={handleSubmit}
-              className="w-full bg-accent hover:bg-accent-hover text-white py-2 
+              className="w-full bg-accent hover:bg-accent-hover text-white py-2 px-4 
               rounded-md transition-colors"
             >
               Apply Filters
@@ -327,7 +350,7 @@ export const FiltersSidebar: React.FC<{
                 setAppliedFilters([]); 
                 onFilterChange?.(resetFilters);
               }}
-              className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 
+              className="w-full bg-red-500/80 hover:bg-red-500 text-white py-2 px-4
               rounded-md transition-colors"
             >
               Reset Filters
