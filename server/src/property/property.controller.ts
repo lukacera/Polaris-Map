@@ -16,7 +16,7 @@ export class PropertyController {
   }> {
     // Parse and transform query parameters
     const filters: PropFilterQuery = {
-      bedrooms: [],
+      rooms: [],
       maxPrice: undefined,
       minPrice: undefined,
       propertyTypes: [],
@@ -58,11 +58,11 @@ export class PropertyController {
       filters.maxPrice = parsedMaxPrice;
     }
 
-    if (query.bedrooms) {
-      console.log(query.bedrooms)
-      filters.bedrooms = Array.isArray(query.bedrooms)
-        ? query.bedrooms
-        : [query.bedrooms];
+    if (query.rooms) {
+      console.log(query.rooms)
+      filters.rooms = Array.isArray(query.rooms)
+        ? query.rooms
+        : [query.rooms];
     }
 
     if (query.status) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { debounce } from '../utils/debounce';
 
 // Define interfaces for our component's props and data structures
 interface MapboxSearchBoxProps {
@@ -100,18 +101,6 @@ const MapboxSearchBox: React.FC<MapboxSearchBoxProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // Typed debounce function
-  const debounce = <T extends (...args: any[]) => any>(
-    func: T,
-    wait: number
-  ): ((...args: Parameters<T>) => void) => {
-    let timeout: any;
-    return (...args: Parameters<T>) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    };
-  };
 
   // Fetch suggestions from Mapbox API with proper typing
   const fetchSuggestions = useCallback(async (searchQuery: string) => {

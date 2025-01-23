@@ -77,7 +77,7 @@ function App() {
       const placeholderFilters: FilterState = {
         minPrice: 0,
         maxPrice: 0,
-        bedrooms: [],
+        rooms: [],
         propertyTypes: [],
         status: status
       }

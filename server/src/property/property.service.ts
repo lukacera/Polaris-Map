@@ -31,24 +31,22 @@ export class PropertyService {
         }
       }
 
-      // ADD FILTERS FOR BEDROOMS AND HERE!!!
-      // Bedrooms Filter
-      // if (filters.bedrooms && filters.bedrooms.length > 0) {
-      //   if (filters.bedrooms.includes('Any')) {
-      //     // If 'Any' is selected, don't filter by bedrooms
-      //   } else if (filters.bedrooms.includes('3+')) {
-      //     // Handle "3+" case
-      //     query.rooms = {
-      //       $or: [
-      //         { $gte: 3 },
-      //         { $in: filters.bedrooms.filter(b => b !== '3+').map(Number) }
-      //       ]
-      //     };
-      //   } else {
-      //     // Normal case: exact bedroom counts
-      //     query.rooms = { $in: filters.bedrooms.map(Number) };
-      //   }
-      // }
+      if (filters.rooms && filters.rooms.length > 0) {
+        if (filters.rooms.includes('Any')) {
+          // If 'Any' is selected, don't filter by rooms
+        } else if (filters.rooms.includes('3+')) {
+          // Handle "3+" case
+          query.rooms = {
+            $or: [
+              { $gte: 3 },
+              { $in: filters.rooms.filter(b => b !== '3+').map(Number) }
+            ]
+          };
+        } else {
+          // Normal case: exact bedroom counts
+          query.rooms = { $in: filters.rooms.map(Number) };
+        }
+      }
     }
 
     if (filters?.status) {

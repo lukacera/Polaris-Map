@@ -30,9 +30,9 @@ export const fetchProperties = async (filters: FilterState): Promise<{
         params.append('maxPrice', filters.maxPrice.toString());
       }
 
-      // Add bedrooms if present
-      if (filters.bedrooms.length > 0) {
-        params.append('bedrooms', filters.bedrooms.join(','));
+      // Add rooms if present
+      if (filters.rooms.length > 0) {
+        params.append('rooms', filters.rooms.join(','));
       }
 
       const response = await fetch(`${apiUrl}/properties?${params.toString()}`);

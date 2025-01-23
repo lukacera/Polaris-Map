@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { fetchProperties } from '../utils/fetchProperties';
 import { FilterState } from '../types/FilterState';
+import { debounce } from '../utils/debounce';
+import { PriceInput } from './PriceInput';
 
 export const FiltersSidebar: React.FC<{
   isSidebarOpen: boolean;
@@ -17,13 +19,14 @@ export const FiltersSidebar: React.FC<{
   maxPrice: number | null;
   status: "Rent" | "Buy";
 }> = ({ isSidebarOpen, onFilterChange, onClose, setProperties, minPrice, maxPrice, status }) => {
+  
   const [isLoading, setIsLoading] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
     minPrice: 0,
     maxPrice: 5000,
-    bedrooms: [],
+    rooms: [],
     status: status
   });
 
@@ -74,9 +77,11 @@ export const FiltersSidebar: React.FC<{
     onFilterChange?.(newFilters);
   };
 
-  const handlePriceChange = (value: number, type: 'minPrice' | 'maxPrice') => {
+  const handlePriceBlur = (value: number, type: 'minPrice' | 'maxPrice') => {
+    console.log("handle blur")
+    console.log(value)
     let newValue = Math.round(value);
-    
+  
     if (type === 'minPrice') {
       newValue = Math.min(newValue, filters.maxPrice);
     } else {
@@ -88,8 +93,8 @@ export const FiltersSidebar: React.FC<{
   
     const existingPriceFilter = appliedFilters.find(f => f.id === `price-${type}`);
     if (existingPriceFilter) {
-      setAppliedFilters(appliedFilters.map(f => 
-        f.id === `price-${type}` 
+      setAppliedFilters(appliedFilters.map(f =>
+        f.id === `price-${type}`
           ? { ...f, value: `$${newValue}` }
           : f
       ));
@@ -105,19 +110,19 @@ export const FiltersSidebar: React.FC<{
   };
 
   const handleBedroomChange = (count: string) => {
-    const updatedBedrooms = filters.bedrooms.includes(count)
-      ? filters.bedrooms.filter(b => b !== count)
-      : [...filters.bedrooms, count];
+    const updatedrooms = filters.rooms.includes(count)
+      ? filters.rooms.filter(b => b !== count)
+      : [...filters.rooms, count];
     
-    const newFilters = { ...filters, bedrooms: updatedBedrooms };
+    const newFilters = { ...filters, rooms: updatedrooms };
     setFilters(newFilters);
     
-    if (filters.bedrooms.includes(count)) {
+    if (filters.rooms.includes(count)) {
       setAppliedFilters(appliedFilters.filter(f => f.id !== `bedroom-${count}`));
     } else {
       setAppliedFilters([...appliedFilters, {
         id: `bedroom-${count}`,
-        label: 'Bedrooms',
+        label: 'Rooms',
         value: count
       }]);
     }
@@ -134,7 +139,7 @@ export const FiltersSidebar: React.FC<{
         newFilters.propertyTypes = filters.propertyTypes.filter(t => t !== value);
         break;
       case 'bedroom':
-        newFilters.bedrooms = filters.bedrooms.filter(b => b !== value);
+        newFilters.rooms = filters.rooms.filter(b => b !== value);
         break;
       case 'price':
         if (value === 'minPrice') {
@@ -221,74 +226,33 @@ export const FiltersSidebar: React.FC<{
               </div>
             ) : (
               <div className="flex flex-col gap-7 ml-2">
-                <div className="flex flex-col items-start w-full space-y-3">
-                  <label className="text-sm text-gray-400">Minimum</label>
-                  <div className='flex items-center space-x-2 w-full'>
-                    <span className="text-sm">$</span>
-                    <input
-                      type="range"
-                      min={minPrice ?? 0}
-                      max={maxPrice ?? 5000}
-                      step={10000}
-                      value={filters.minPrice}
-                      onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                      className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
-                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
-                      [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
-                      [&::-webkit-slider-thumb]:bg-surface-active
-                      [&::-webkit-slider-thumb]:cursor-pointer"
-                    />
-                  </div>
-                  <input
-                    type="number"
+                <div className="flex flex-col gap-7 ml-2">
+                  <PriceInput
+                    value={filters.minPrice}
                     min={minPrice ?? 0}
                     max={maxPrice ?? 5000}
                     step={10000}
-                    value={filters.minPrice}
-                    onChange={(e) => handlePriceChange(Number(e.target.value), 'minPrice')}
-                    className="px-2 py-1 text-sm bg-gray-800 rounded border 
-                    border-gray-700 focus:outline-none focus:border-blue-500"
+                    label="Minimum"
+                    onBlur={(value) => handlePriceBlur(value, 'minPrice')}
                   />
-                </div>
-                <div>
-                  <div className="flex flex-col items-start w-full space-y-3">
-                    <label className="text-sm text-gray-400">Maximum</label>
-                    <div className='flex items-center space-x-2 w-full'>
-                      <span className="text-sm">$</span>
-                      <input
-                        type="range"
-                        min={minPrice ?? 0}
-                        max={maxPrice ?? 5000}
-                        step={10000}
-                        value={filters.maxPrice}
-                        onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
-                        className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
-                        [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
-                        [&::-webkit-slider-thumb]:bg-surface-active [&::-webkit-slider-thumb]:cursor-pointer"
-                      />
-                    </div>
-                    <input
-                      type="number"
-                      min={minPrice ?? 0}
-                      max={maxPrice ?? 5000}
-                      step={10000}
-                      value={filters.maxPrice}
-                      onChange={(e) => handlePriceChange(Number(e.target.value), 'maxPrice')}
-                      className="px-2 py-1 text-sm bg-gray-800 rounded border 
-                      border-gray-700 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
+                  <PriceInput
+                    value={filters.maxPrice}
+                    min={minPrice ?? 0}
+                    max={maxPrice ?? 5000}
+                    step={10000}
+                    label="Maximum"
+                    onBlur={(value) => handlePriceBlur(value, 'maxPrice')}
+                  />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Bedrooms Section */}
+          {/* rooms Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Bed className="w-5 h-5" />
-              <span>Bedrooms</span>
+              <span>rooms</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {['Any', '1', '2', '3+'].map(count => (
@@ -296,7 +260,7 @@ export const FiltersSidebar: React.FC<{
                   key={count}
                   onClick={() => handleBedroomChange(count)}
                   className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                    filters.bedrooms.includes(count)
+                    filters.rooms.includes(count)
                       ? 'bg-accent text-white'
                       : 'bg-surface hover:bg-surface-active text-gray-100'
                   }`}
@@ -342,7 +306,7 @@ export const FiltersSidebar: React.FC<{
                   propertyTypes: [],
                   minPrice: minPrice ?? 0,
                   maxPrice: maxPrice ?? 5000,
-                  bedrooms: [],
+                  rooms: [],
                   bathrooms: [],
                   status: "Buy" as "Buy" | "Rent"
                 };

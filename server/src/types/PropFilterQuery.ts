@@ -2,6 +2,6 @@ export interface PropFilterQuery {
     propertyTypes?: string[];
     minPrice?: number; 
     maxPrice?: number; 
-    bedrooms?: string[];
+    rooms?: string[];
     status?: "Rent" | "Buy";
 }
