@@ -95,7 +95,6 @@ function App() {
     fetchData();
   }, [status]);
 
-  console.log(properties.features.length);
   useEffect(() => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,

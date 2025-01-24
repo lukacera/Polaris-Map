@@ -17,16 +17,23 @@ export const PriceInput: React.FC<PriceInputProps> = ({
   label,
   onBlur
 }) => {
-  // Local state to track user input
   const [localValue, setLocalValue] = useState(value);
 
-  // Update local value when prop value changes
+  // Update local value whenever the prop value changes
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
   const handleBlur = () => {
-    onBlur(localValue);
+    // Ensure the value is within bounds
+    const boundedValue = Math.min(Math.max(localValue, min), max);
+    setLocalValue(boundedValue);
+    onBlur(boundedValue);
+  };
+
+  const handleChange = (newValue: number) => {
+    const boundedValue = Math.min(Math.max(newValue, min), max);
+    setLocalValue(boundedValue);
   };
 
   return (
@@ -40,7 +47,7 @@ export const PriceInput: React.FC<PriceInputProps> = ({
           max={max}
           step={step}
           value={localValue}
-          onChange={(e) => setLocalValue(Number(e.target.value))}
+          onChange={(e) => handleChange(Number(e.target.value))}
           onBlur={handleBlur}
           className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
           [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
@@ -55,7 +62,7 @@ export const PriceInput: React.FC<PriceInputProps> = ({
         max={max}
         step={step}
         value={localValue}
-        onChange={(e) => setLocalValue(Number(e.target.value))}
+        onChange={(e) => handleChange(Number(e.target.value))}
         onBlur={handleBlur}
         className="px-2 py-1 text-sm bg-gray-800 rounded border 
         border-gray-700 focus:outline-none focus:border-blue-500"

@@ -2,7 +2,7 @@ import { CustomProperty } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
 import { submitVote } from '../utils/submitVote';
 import { ReactElement, useState } from 'react';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, X, XCircle } from 'lucide-react';
 
 interface PropertyPopupProps {
   property: CustomProperty;
@@ -22,7 +22,7 @@ const PropertyPopup = ({
   TIMEOUT
 }: PropertyPopupProps) => {
   const { isLoggedIn } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleVoteClick = async (voteType: VoteType) => {
     if (!isLoggedIn) {
@@ -40,13 +40,11 @@ const PropertyPopup = ({
         return;
       }
       
-      // Handle the already voted case
       if (response.alreadyVotedError) {
         showNotification('You have already voted for this property', 'warning', <XCircle />);
         return;
       }
   
-      // Handle other errors
       showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } catch (error) {
       console.error(error);
@@ -57,7 +55,7 @@ const PropertyPopup = ({
       }, TIMEOUT);
     }
   };
-    
+
   return (
     <div className="overflow-hidden bg-white w-full max-w-lg rounded-lg">
       <div className="relative px-5 py-3 bg-accent text-white">
@@ -70,33 +68,40 @@ const PropertyPopup = ({
           </svg>
         </button>
   
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-base sm:text-xl font-bold">{property.price} €</h2>
-          <p className="text-xs sm:text-sm text-gray-300">{property.pricePerSquareMeter.toFixed(0)} €/m²</p>
+        <div className="flex items-center gap-5">
+          <div className='flex items-baseline gap-2'>
+            <h2 className="text-base sm:text-xl font-bold">{property.price} €</h2>
+            <p className="text-xs sm:text-sm text-gray-300">{property.pricePerSquareMeter.toFixed(0)} €/m²</p>
+          </div>
+          <span className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-mainWhite text-surface-hover`}>
+            For {property.status}
+          </span>
         </div>
       </div>
   
       <div className="p-4 space-y-4">
         <div className="grid grid-cols-4 gap-3">
-          <div className="p-2 bg-gray-50 rounded">
+          <div className="p-2 border border-surface-border/50 rounded">
             <p className="text-[10px] sm:text-xs text-gray-500">Type</p>
-            <p className="text-xs sm:text-sm font-medium text-gray-900">{property.type}</p>
+            <p className="text-xs sm:text-sm font-medium text-gray-900">
+              {property.type.charAt(0).toUpperCase() + property.type.slice(1)}
+            </p>
           </div>
-          <div className="p-2 bg-gray-50 rounded">
+          <div className="p-2 border border-surface-border/50 rounded">
             <p className="text-[10px] sm:text-xs text-gray-500">Size</p>
             <p className="text-xs sm:text-sm font-medium text-gray-900">{property.size}m²</p>
           </div>
-          <div className="p-2 bg-gray-50 rounded">
+          <div className="p-2 border border-surface-border/50 rounded">
             <p className="text-[10px] sm:text-xs text-gray-500">Rooms</p>
             <p className="text-xs sm:text-sm font-medium text-gray-900">{property.rooms}</p>
           </div>
-          <div className="p-2 bg-gray-50 rounded">
+          <div className="p-2 border border-surface-border/50 rounded">
             <p className="text-[10px] sm:text-xs text-gray-500">Floor</p>
             <p className="text-xs sm:text-sm font-medium text-gray-900">2/3</p>
           </div>
         </div>
   
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 items-center">
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <p className="text-[10px] sm:text-xs font-medium text-gray-700">Data Reliability</p>
@@ -108,9 +113,10 @@ const PropertyPopup = ({
                 style={{ width: `${property.dataReliability}%` }}
               />
             </div>
+            
           </div>
   
-          <div className="space-y-1">
+          <div className="space-y-1 flex flex-col justify-end">
             <div className="flex justify-between items-center mb-1">
               <div className="tooltip">
                 <button className="text-[10px] sm:text-xs text-gray-500 flex items-center gap-1">
@@ -129,12 +135,12 @@ const PropertyPopup = ({
             </div>
   
             <div className="flex gap-1">
-              {/* Vote buttons */}
               <button
                 disabled={isSubmitting}
                 onClick={() => handleVoteClick("lower")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-red-200 text-red-600 rounded
-                        hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-[10px] sm:text-xs font-medium"
+                        hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-[10px] sm:text-xs font-medium
+                        disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -146,7 +152,8 @@ const PropertyPopup = ({
                 disabled={isSubmitting}
                 onClick={() => handleVoteClick("equal")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-green-200 text-green-600 rounded
-                  hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-[10px] sm:text-xs font-medium"
+                  hover:bg-green-50 hover:border-green-300 transition-all duration-200 text-[10px] sm:text-xs font-medium
+                  disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -158,7 +165,8 @@ const PropertyPopup = ({
                 disabled={isSubmitting}
                 onClick={() => handleVoteClick("higher")}
                 className="flex-1 flex items-center justify-center gap-1 p-1.5 bg-white border border-blue-200 text-blue-600 rounded
-                        hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-[10px] sm:text-xs font-medium"
+                        hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-[10px] sm:text-xs font-medium
+                        disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
@@ -169,9 +177,29 @@ const PropertyPopup = ({
           </div>
         </div>
   
-        <p className="text-[10px] sm:text-xs text-gray-400 text-right">
-          Last review: {new Date(property.updatedAt).toLocaleDateString('en-US')}
-        </p>
+        <div className='flex items-end justify-between w-full'>
+          <p className="text-[10px] sm:text-xs text-gray-400 text-right">
+            Last review: {new Date(property.updatedAt).toLocaleDateString('en-US')}
+          </p>
+          <div className="p-2 rounded space-y-3 flex flex-col items-center">
+            <div>
+              <p className="text-[10px] sm:text-xs text-gray-500">Your vote:</p>
+              <p className="text-xs font-medium text-gray-900">
+                You voted that this price seems:
+                <span className='font-medium text-red-500 ml-1'>Lower</span>
+              </p>
+            </div>
+            <button 
+              className="text-xs px-3 py-1.5 border border-gray-200 
+              rounded text-surface hover:bg-gray-50 hover:text-surface-hover 
+              hover:border-surface-border transition-all duration-200 flex items-center gap-1
+              "
+            >
+              <X size={15}/>
+              Remove my vote
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

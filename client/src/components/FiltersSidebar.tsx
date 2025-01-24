@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { fetchProperties } from '../utils/fetchProperties';
 import { FilterState } from '../types/FilterState';
-import { debounce } from '../utils/debounce';
 import { PriceInput } from './PriceInput';
 
 export const FiltersSidebar: React.FC<{
@@ -22,6 +21,7 @@ export const FiltersSidebar: React.FC<{
   
   const [isLoading, setIsLoading] = useState(true);
   
+  console.log("reload the page")
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
     minPrice: 0,
@@ -157,8 +157,52 @@ export const FiltersSidebar: React.FC<{
 
   const handleSubmit = async () => {
     try {
-      const {geoJsonData} = await fetchProperties(filters)
+      // Handle price range validation
+      const newFilters = { ...filters };
       
+      if (newFilters.minPrice > newFilters.maxPrice) {
+        newFilters.minPrice = newFilters.maxPrice;
+        
+        // Update appliedFilters for minPrice
+        const minPriceFilterIndex = appliedFilters.findIndex(f => f.id === 'price-minPrice');
+        if (minPriceFilterIndex !== -1) {
+          const updatedFilters = [...appliedFilters];
+          updatedFilters[minPriceFilterIndex] = {
+            ...updatedFilters[minPriceFilterIndex],
+            value: `$${newFilters.minPrice}`
+          };
+          setAppliedFilters(updatedFilters);
+        } else {
+          setAppliedFilters([...appliedFilters, {
+            id: 'price-minPrice',
+            label: 'Price From',
+            value: `$${newFilters.minPrice}`
+          }]);
+        }
+      } else if (newFilters.maxPrice < newFilters.minPrice) {
+        newFilters.maxPrice = newFilters.minPrice;
+        
+        // Update appliedFilters for maxPrice
+        const maxPriceFilterIndex = appliedFilters.findIndex(f => f.id === 'price-maxPrice');
+        if (maxPriceFilterIndex !== -1) {
+          const updatedFilters = [...appliedFilters];
+          updatedFilters[maxPriceFilterIndex] = {
+            ...updatedFilters[maxPriceFilterIndex],
+            value: `$${newFilters.maxPrice}`
+          };
+          setAppliedFilters(updatedFilters);
+        } else {
+          setAppliedFilters([...appliedFilters, {
+            id: 'price-maxPrice',
+            label: 'Price To',
+            value: `$${newFilters.maxPrice}`
+          }]);
+        }
+      }
+      
+      console.log(newFilters);
+      setFilters(newFilters);
+      const {geoJsonData} = await fetchProperties(newFilters);
       setProperties(geoJsonData);
     } catch (error) {
       console.error('Error fetching properties:', error);
