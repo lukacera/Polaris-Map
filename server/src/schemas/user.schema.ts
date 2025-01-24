@@ -5,11 +5,6 @@ interface Property {
   propertyId: mongoose.Schema.Types.ObjectId;
 }
 
-interface Vote {
-  propertyId: mongoose.Schema.Types.ObjectId;
-  voteType: 'higher' | 'lower' | "equal";
-}
-
 interface Preferences {
   currency: 'EUR' | 'USD' | 'GBP';
   measurementSystem: 'metric' | 'imperial';
@@ -35,12 +30,6 @@ export class User {
     propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
   }])
   properties: Property[];
-
-  @Prop([{
-    propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' },
-    voteType: { type: String, enum: ['higher', 'lower',  'equal'] },
-  }])
-  votes: Vote[];
 
   @Prop({ type: Date, default: Date.now })
   lastLogin: Date;

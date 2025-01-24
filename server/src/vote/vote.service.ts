@@ -5,7 +5,7 @@ import { Property, PropertyDocument } from '../schemas/property.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 
 interface Vote {
-  propertyId: mongoose.Schema.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
   voteType: 'higher' | 'lower' | 'equal';
 }
 
@@ -18,13 +18,13 @@ export class VoteService {
 
   // Get user's vote for specific property
   async getUserVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId): Promise<Vote> {
-    const user = await this.userModel.findById(userId);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    const property = await this.propertyModel.findById(propertyId);
+    if (!property) {
+      throw new HttpException('property not found', HttpStatus.NOT_FOUND);
     }
 
-    return user.votes.find(
-      vote => vote.propertyId.toString() === propertyId.toString()
+    return property.votes.find(
+      vote => vote.userId.toString() === userId.toString()
     );
   }
 
@@ -40,14 +40,8 @@ export class VoteService {
       if (!property) {
         throw new HttpException('Property not found', HttpStatus.NOT_FOUND);
       }
-
-      // Check if user already voted for this property
-      const user = await this.userModel.findById(userId);
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-      const existingVote = user.votes.find(
-        vote => vote.propertyId.toString() === propertyId.toString()
+      const existingVote = property.votes.find(
+        vote => vote.userId.toString() === userId.toString()
       );
 
       if (existingVote) {
@@ -97,43 +91,30 @@ export class VoteService {
 
   // Remove vote
   async removeVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId) {
+    console.log('Starting removeVote function');
     const session = await this.userModel.db.startSession();
     
     try {
       session.startTransaction();
+      console.log('Transaction started');
 
       // Find user and their vote
-      const user = await this.userModel.findById(userId);
-      if (!user) {
+      const property = await this.propertyModel.findById(propertyId);
+      if (!property) {
+        console.log('User not found');
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
+      console.log('Property found found:', property);
 
-      const voteToRemove = user.votes.find(
-        vote => vote.propertyId.toString() === propertyId.toString()
+      const voteToRemove = property.votes.find(
+        vote => vote.userId.toString() === propertyId.toString()
       );
 
       if (!voteToRemove) {
+        console.log('Vote not found');
         throw new HttpException('Vote not found', HttpStatus.NOT_FOUND);
       }
-
-      // Remove vote from user document
-      await this.userModel.updateOne(
-        { _id: userId },
-        { 
-          $pull: { 
-            votes: { 
-              propertyId: new Types.ObjectId(propertyId) 
-            } 
-          } 
-        },
-        { session }
-      );
-
-      // Update property
-      const property = await this.propertyModel.findById(propertyId);
-      if (!property) {
-        throw new HttpException('Property not found', HttpStatus.NOT_FOUND);
-      }
+      console.log('Vote to remove found:', voteToRemove);
 
       const newNumberOfReviews = property.numberOfReviews - 1;
       const newDataReliability = this.calculateNewReliability(
@@ -141,6 +122,8 @@ export class VoteService {
         voteToRemove.voteType,
         true // indicates vote removal
       );
+      console.log('New number of reviews:', newNumberOfReviews);
+      console.log('New data reliability:', newDataReliability);
 
       await this.propertyModel.updateOne(
         { _id: propertyId },
@@ -148,17 +131,26 @@ export class VoteService {
           $set: {
             numberOfReviews: newNumberOfReviews,
             dataReliability: newDataReliability
-          }
+          },
+          $pull: { 
+            votes: { 
+              userId: new Types.ObjectId(userId) 
+            } 
+          } 
         },
         { session }
       );
+      console.log('Property updated');
 
       await session.commitTransaction();
+      console.log('Transaction committed');
     } catch (error) {
       await session.abortTransaction();
+      console.log('Transaction aborted due to error:', error);
       throw error;
     } finally {
       session.endSession();
+      console.log('Session ended');
     }
   }
 

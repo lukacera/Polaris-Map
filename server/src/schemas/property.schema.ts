@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
+interface Vote {
+  userId: mongoose.Schema.Types.ObjectId;
+  voteType: 'higher' | 'lower' | "equal";
+}
 @Schema({
   timestamps: true,
   collection: 'properties'
@@ -70,6 +74,12 @@ export class Property {
     default: 0
   })
   numberOfReviews?: number;
+
+  @Prop([{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    voteType: { type: String, enum: ['higher', 'lower',  'equal'] },
+  }])
+  votes: Vote[];
 }
 
 export type PropertyDocument = Property & Document;

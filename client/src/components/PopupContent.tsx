@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { submitVote } from '../utils/submitVote';
 import { ReactElement, useState } from 'react';
 import { CheckCircle, X, XCircle } from 'lucide-react';
+import { deleteVote } from '../utils/deleteVote';
 
 interface PropertyPopupProps {
   property: CustomProperty;
@@ -49,6 +50,33 @@ const PropertyPopup = ({
     } catch (error) {
       console.error(error);
       showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
+    } finally {
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, TIMEOUT);
+    }
+  };
+
+  const handleDeleteVote = async () => {
+    if (!isLoggedIn) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await deleteVote(property.id);
+      
+      if (response.success) {
+        showNotification('Vote removed successfully!', 'success', <CheckCircle />);
+        return;
+      }
+  
+      showNotification('Failed to remove vote. Please try again.', 'error', <XCircle />);
+    } catch (error) {
+      console.error(error);
+      showNotification('Failed to remove vote. Please try again.', 'error', <XCircle />);
     } finally {
       setTimeout(() => {
         setIsSubmitting(false);
@@ -190,6 +218,7 @@ const PropertyPopup = ({
               </p>
             </div>
             <button 
+              onClick={() => handleDeleteVote()}
               className="text-xs px-3 py-1.5 border border-gray-200 
               rounded text-surface hover:bg-gray-50 hover:text-surface-hover 
               hover:border-surface-border transition-all duration-200 flex items-center gap-1

@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import mongoose from 'mongoose';
 
 interface Vote {
-  propertyId: mongoose.Schema.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
   voteType: 'higher' | 'lower' | 'equal';
 }
 
