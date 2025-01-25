@@ -36,12 +36,7 @@ export class PropertyService {
           // If 'Any' is selected, don't filter by rooms
         } else if (filters.rooms.includes('3+')) {
           // Handle "3+" case
-          query.rooms = {
-            $or: [
-              { $gte: 3 },
-              { $in: filters.rooms.filter(b => b !== '3+').map(Number) }
-            ]
-          };
+            query.rooms = { $gte: 3 };
         } else {
           // Normal case: exact bedroom counts
           query.rooms = { $in: filters.rooms.map(Number) };

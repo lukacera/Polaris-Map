@@ -17,6 +17,7 @@ export class VoteController {
   private validateObjectId(id: string, paramName: string): mongoose.Types.ObjectId {
     // First check if the string is a valid ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log("not vlaid" + id)
       throw new BadRequestException(
         `Invalid ${paramName} format. Must be a valid MongoDB ObjectId.`
       );
@@ -68,7 +69,7 @@ export class VoteController {
     @Param('propertyId') propertyId: string
   ) {
     // Validate IDs before processing
-    const validUserId = this.validateObjectId(req.user._id, 'user ID');
+    const validUserId = this.validateObjectId(req.user.id, 'user ID');
     const validPropertyId = this.validateObjectId(propertyId, 'property ID');
 
     return this.voteService.removeVote(
