@@ -1,8 +1,6 @@
 import {
-  BadRequestException,
   Controller,
   Get,
-  Headers,
   HttpStatus,
   Post,
   Req,
@@ -33,7 +31,7 @@ export class AuthController {
       httpOnly: true,
     });
 
-    return res.redirect('http://localhost:5173');
+    return res.redirect(process.env.CLIENT_URL);
   }
 
   @Post('logout')
