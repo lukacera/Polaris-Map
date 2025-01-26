@@ -1,7 +1,16 @@
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import mapboxgl, { GeoJSONFeature, MapMouseEvent, PointLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Menu, Move, MousePointer, CheckCircle, ArrowRight } from 'lucide-react';
+import { 
+  Menu, 
+  Move, 
+  MousePointer, 
+  CheckCircle, 
+  ArrowRight,
+  // Euro,
+  // DollarSign, 
+  // PoundSterling  
+} from 'lucide-react';
 import { FiltersSidebar } from './components/FiltersSidebar';
 import ReviewModal from './components/NewPropModal';
 import { CustomProperty } from './types/Property';
@@ -17,6 +26,17 @@ import { fetchProperties } from './utils/fetchProperties';
 import { FilterState } from './types/FilterState';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
+// type Currency = 'EUR' | 'USD' | 'GBP';
+
+// const currencies: {
+//   icon: ReactElement;
+//   label: string;
+// }[] = [
+//   { icon: <Euro />, label: 'EUR' },
+//   { icon: <DollarSign />, label: 'USD' },
+//   { icon: <PoundSterling />, label: 'GBP' }
+// ]
 
 function App() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -37,6 +57,7 @@ function App() {
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [status, setStatus] = useState<'Buy' | "Rent">('Buy');
+  // const [favCurrency, setFavCurrency] = useState<Currency>('EUR');
 
   const [notification, setNotification] = useState<{ 
     message: string; isVisible: boolean; color: string, icon: ReactElement 
@@ -346,37 +367,52 @@ function App() {
             </button>
           </div>
           <div className='flex gap-2 justify-start w-full'>
-          <button 
-            onClick={() => setStatus('Buy')}
-            className={`transition-all duration-200 shadow-xl
-              px-5 py-2 rounded-lg flex items-center gap-2
-              ${status === 'Buy' 
+            <button 
+              onClick={() => setStatus('Buy')}
+              className={`transition-all duration-200 shadow-xl
+                px-5 py-2 rounded-lg flex items-center gap-2
+                ${status === 'Buy' 
+                  ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
+                  : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
+                }`}
+            >
+              For sale
+              <ArrowRight 
+                className={`w-4 h-4 transition-transform duration-200
+                  ${status === 'Buy' ? 'translate-x-1' : ''}`}
+              />
+            </button>
+            <button
+              onClick={() => setStatus('Rent')}
+              className={`transition-all duration-200 shadow-xl
+                px-5 py-2 rounded-lg flex items-center gap-2
+                ${status === 'Rent'
                 ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
                 : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
-              }`}
-          >
-            For sale
-            <ArrowRight 
-              className={`w-4 h-4 transition-transform duration-200
-                ${status === 'Buy' ? 'translate-x-1' : ''}`}
-            />
-          </button>
-          <button
-            onClick={() => setStatus('Rent')}
-            className={`transition-all duration-200 shadow-xl
-              px-5 py-2 rounded-lg flex items-center gap-2
-              ${status === 'Rent'
-              ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
-              : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
-              }`}
-          >
-            For rent
-            <ArrowRight 
-              className={`w-4 h-4 transition-transform duration-200
-                ${status === 'Rent' ? 'translate-x-1' : ''}`}
-            />
-          </button>
+                }`}
+            >
+              For rent
+              <ArrowRight 
+                className={`w-4 h-4 transition-transform duration-200
+                  ${status === 'Rent' ? 'translate-x-1' : ''}`}
+              />
+            </button>
           </div>
+          {/* <div className='flex gap-2 justify-start w-full'>
+            {currencies.map((currency) => (
+              <button
+              onClick={() => setFavCurrency(currency.label as Currency)}
+              className={`transition-all duration-200 shadow-xl
+                px-5 py-2 rounded-lg flex items-center gap-2
+                ${favCurrency === currency.label
+                ? 'bg-accent hover:bg-accent-hover text-white font-semibold transform scale-105' 
+                : 'bg-mainWhite text-black hover:bg-mainWhite-muted'
+                }`}
+            >
+              {currency.icon}
+            </button>
+            ))}
+          </div> */}
         </div>
 
         {!isSidebarOpen && (
