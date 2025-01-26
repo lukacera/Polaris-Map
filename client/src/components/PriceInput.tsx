@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DollarSign } from 'lucide-react';
 
 interface PriceInputProps {
   value: number;
@@ -18,55 +19,54 @@ export const PriceInput: React.FC<PriceInputProps> = ({
   onBlur
 }) => {
   const [localValue, setLocalValue] = useState(value);
+  const [isFocused, setIsFocused] = useState(false);
 
-  // Update local value whenever the prop value changes
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
   const handleBlur = () => {
-    // Ensure the value is within bounds
+    setIsFocused(false);
     const boundedValue = Math.min(Math.max(localValue, min), max);
     setLocalValue(boundedValue);
     onBlur(boundedValue);
   };
 
   const handleChange = (newValue: number) => {
-    const boundedValue = Math.min(Math.max(newValue, min), max);
-    setLocalValue(boundedValue);
+    setLocalValue(newValue);
   };
 
   return (
-    <div className="flex flex-col items-start w-full space-y-3">
-      <label className="text-sm text-gray-400">{label}</label>
-      <div className="flex items-center space-x-2 w-full">
-        <span className="text-sm">$</span>
+    <div className="w-full max-w-xs">
+      <label className="block mb-2 text-sm font-medium text-gray-300">
+        {label}
+      </label>
+      <div className="relative">
+        <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
+          <DollarSign className="h-4 w-4 text-gray-400" />
+        </div>
         <input
-          type="range"
+          type="number"
           min={min}
           max={max}
           step={step}
           value={localValue}
           onChange={(e) => handleChange(Number(e.target.value))}
           onBlur={handleBlur}
-          className="flex-1 appearance-none bg-gray-800 h-1 rounded-lg focus:outline-none
-          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4
-          [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full
-          [&::-webkit-slider-thumb]:bg-surface-active
-          [&::-webkit-slider-thumb]:cursor-pointer"
+          onFocus={() => setIsFocused(true)}
+          className={`w-full pl-10 pr-4 py-2 bg-gray-800 border rounded-lg 
+            text-gray-100 placeholder-gray-400 text-sm
+            transition-colors duration-200
+            ${isFocused 
+              ? 'border-blue-500 ring-1 ring-blue-500/20' 
+              : 'border-gray-700 hover:border-gray-600'
+            }
+            focus:outline-none focus:ring-2 focus:ring-blue-500/40`}
         />
       </div>
-      <input
-        type="number"
-        min={min}
-        max={max}
-        step={step}
-        value={localValue}
-        onChange={(e) => handleChange(Number(e.target.value))}
-        onBlur={handleBlur}
-        className="px-2 py-1 text-sm bg-gray-800 rounded border 
-        border-gray-700 focus:outline-none focus:border-blue-500"
-      />
+      <div className="mt-1 text-xs text-gray-400">
+        Min: ${min} · Max: ${max}
+      </div>
     </div>
   );
 };

@@ -11,7 +11,7 @@ async function bootstrap() {
   app.use(cookieParser());  // Add this line before CORS
 
   app.enableCors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://polaris-platform.vercel.app"],
     methods: "GET,POST,PUT,DELETE",
     credentials: true
   });
