@@ -13,6 +13,10 @@ export type Property = {
     yearBuilt: number;
     dataReliability: number;
     numberOfReviews: number;
+    votes: {
+      userId: string;
+      voteType: 'higher' | 'lower' | "equal";
+    }[] | [];
 
     updatedAt: string; 
     createdAt: string; 

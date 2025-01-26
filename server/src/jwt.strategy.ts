@@ -19,13 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       let token = null;
       if (req && req.cookies) {
         token = req.cookies['token'];
-        // Let's decode and log the token here for demonstration
-        if (token) {
-          const [header, payload, signature] = token.split('.');
-          const decodedPayload = JSON.parse(
-            Buffer.from(payload, 'base64url').toString('utf-8')
-          );
-        }
       }
       return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     };

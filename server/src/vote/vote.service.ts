@@ -30,7 +30,6 @@ export class VoteService {
 
   // Add new vote
   async addVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId, voteType: 'higher' | 'lower') {
-    
     const session = await this.userModel.db.startSession();
     try {
       session.startTransaction();
@@ -44,6 +43,7 @@ export class VoteService {
         vote => vote.userId.toString() === userId.toString()
       );
 
+      console.log(existingVote)
       if (existingVote) {
         throw new HttpException(
           'User already voted for this property',
@@ -51,27 +51,28 @@ export class VoteService {
         );
       }
 
-      // Add vote to user
-      await this.userModel.updateOne(
-        { _id: userId },
-        { 
-          $push: { 
-            votes: {
-              propertyId: new Types.ObjectId(propertyId),
-              voteType
-            }
-          }
-        },
-        { session }
-      );
-
       // Update property metrics
       const newNumberOfReviews = property.numberOfReviews + 1;
       const newDataReliability = this.calculateNewReliability(property, voteType);
 
+      // Check if property should be deleted based on reliability
+      if ((property.dataReliability <= 2) && (voteType === 'higher' || voteType === 'lower')) {
+        // Delete the property
+        await this.propertyModel.deleteOne({ _id: propertyId }, { session });
+        await session.commitTransaction();
+        return; // Exit early since property is deleted
+      }
+
+      // If not deleting, update the property metrics
       await this.propertyModel.updateOne(
         { _id: propertyId },
         { 
+          $push: { 
+            votes: {
+              userId: new Types.ObjectId(userId),
+              voteType
+            }
+          },
           $set: {
             numberOfReviews: newNumberOfReviews,
             dataReliability: newDataReliability
@@ -91,7 +92,6 @@ export class VoteService {
 
   // Remove vote
   async removeVote(userId: mongoose.Types.ObjectId, propertyId: mongoose.Types.ObjectId) {
-    console.log('Starting removeVote function');
     const session = await this.userModel.db.startSession();
     
     try {
@@ -104,26 +104,19 @@ export class VoteService {
         console.log('User not found');
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-      console.log('Property found found:', property);
-
       const voteToRemove = property.votes.find(
-        vote => vote.userId.toString() === propertyId.toString()
+        vote => vote.userId.toString() === userId.toString()
       );
 
       if (!voteToRemove) {
-        console.log('Vote not found');
         throw new HttpException('Vote not found', HttpStatus.NOT_FOUND);
       }
-      console.log('Vote to remove found:', voteToRemove);
-
       const newNumberOfReviews = property.numberOfReviews - 1;
       const newDataReliability = this.calculateNewReliability(
         property, 
         voteToRemove.voteType,
         true // indicates vote removal
       );
-      console.log('New number of reviews:', newNumberOfReviews);
-      console.log('New data reliability:', newDataReliability);
 
       await this.propertyModel.updateOne(
         { _id: propertyId },
@@ -161,20 +154,13 @@ export class VoteService {
     isRemoval: boolean = false
   ): number {
     const currentReliability = property.dataReliability;
-    const totalVotes = property.numberOfReviews;
     
     // Base impact values
-    const baseImpact = voteType === 'higher' ? -2 : 2;
+    const baseImpact = voteType === 'equal' ? 0 : 2;
     
     // Reverse impact if removing vote
     const impact = isRemoval ? -baseImpact : baseImpact;
     
-    // Vote weight decreases as total votes increase
-    const weight = 1 / (totalVotes + 1);
-    
-    const newReliability = currentReliability + (impact * weight);
-    
-    // Ensure value stays within 0-100 range
-    return Math.max(0, Math.min(100, newReliability));
+    return currentReliability + impact
   }
 }

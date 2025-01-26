@@ -22,7 +22,11 @@ const PropertyPopup = ({
   showNotification,
   TIMEOUT
 }: PropertyPopupProps) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
+
+  const userId = user?.sub
+
+  const didUserVote = property.votes?.some(vote => vote.userId === userId);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleVoteClick = async (voteType: VoteType) => {
@@ -209,7 +213,7 @@ const PropertyPopup = ({
           <p className="text-[10px] sm:text-xs text-gray-400 text-right">
             Last review: {new Date(property.updatedAt).toLocaleDateString('en-US')}
           </p>
-          <div className="p-2 rounded space-y-3 flex flex-col items-center">
+          {didUserVote && <div className="p-2 rounded space-y-3 flex flex-col items-center">
             <div>
               <p className="text-[10px] sm:text-xs text-gray-500">Your vote:</p>
               <p className="text-xs font-medium text-gray-900">
@@ -227,7 +231,7 @@ const PropertyPopup = ({
               <X size={15}/>
               Remove my vote
             </button>
-          </div>
+          </div>}
         </div>
       </div>
     </div>

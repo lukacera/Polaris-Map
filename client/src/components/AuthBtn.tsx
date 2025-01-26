@@ -13,6 +13,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ setIsLoginModalOpen }) => {
   const [imgError, setImgError] = useState(false);
   const { user, isLoggedIn, loading, logout } = useAuth();
 
+  console.log(user)
   const handleLogout = async () => {
     try {
       await logout();
