@@ -28,10 +28,11 @@ export class AuthController {
     console.log("pathname:", req.path);
     res.cookie('token', token, {
       maxAge: 2592000000, // 30 days
-      sameSite: true,
-      secure: false,
+      sameSite: process.env.NODE_ENV.toLowerCase() === 'production' ? 'none' : 'strict',
+      secure: process.env.NODE_ENV.toLowerCase() === 'production',
       httpOnly: true,
     });
+    
 
     return res.redirect(process.env.CLIENT_URL);
   }
