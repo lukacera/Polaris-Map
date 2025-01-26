@@ -18,6 +18,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+const apiURL = import.meta.env.VITE_API_URL
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
@@ -39,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuth = async () => {
     setLoading(true) // Start loading
     try {
-      const response = await fetch('http://localhost:3000/auth/verify-token', {
+      const response = await fetch(`${apiURL}/auth/verify-token`, {
         credentials: 'include',
       })
       if (response.ok) {
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     setLoading(true) // Start loading
     try {
-      await fetch('http://localhost:3000/auth/logout', {
+      await fetch(`${apiURL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
@@ -77,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const login = () => {
-    window.location.href = 'http://localhost:3000/auth/google'
+    window.location.href = `${apiURL}/auth/google`
   }
 
   useEffect(() => {
