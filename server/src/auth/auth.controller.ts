@@ -21,9 +21,11 @@ export class AuthController {
 
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  async googleAuthCallback(@Req() req, @Res() res: Response) {
-    const token = await this.authService.signIn(req.user);
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const token = await this.authService.signIn(req.user as any);
 
+    console.log('Token:', token);
+    console.log("pathname:", req.path);
     res.cookie('token', token, {
       maxAge: 2592000000, // 30 days
       sameSite: true,
