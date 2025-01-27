@@ -24,9 +24,15 @@ const PropertyPopup = ({
 }: PropertyPopupProps) => {
   const { isLoggedIn, user } = useAuth();
 
-  const userId = user?.sub
+  const userId = user?.id
 
-  const didUserVote = property.votes?.some(vote => vote.userId === userId);
+  console.log(user)
+  const votes = property.votes ? JSON.parse(property.votes) : [];
+  const didUserVote = votes.some(vote => vote.userId === userId);
+
+  console.log(votes)
+  // Get the user's vote type if they voted
+  const userVote = votes.find(vote => vote.userId === userId)?.voteType;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleVoteClick = async (voteType: VoteType) => {

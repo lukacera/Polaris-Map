@@ -70,7 +70,7 @@ export class VoteService {
           $push: { 
             votes: {
               userId: new Types.ObjectId(userId),
-              voteType
+              voteType: voteType
             }
           },
           $set: {
@@ -153,14 +153,25 @@ export class VoteService {
     voteType: 'higher' | 'lower' | 'equal', 
     isRemoval: boolean = false
   ): number {
-    const currentReliability = property.dataReliability;
-    
-    // Base impact values
-    const baseImpact = voteType === 'equal' ? 0 : 2;
-    
-    // Reverse impact if removing vote
-    const impact = isRemoval ? -baseImpact : baseImpact;
-    
-    return currentReliability + impact
+    let currentReliability = property.dataReliability;
+
+    // If vote is equal, increase or decrease(when removing the vote) reliability by 1
+    if (voteType === 'equal') {
+      if (!isRemoval && currentReliability < 100) {
+        currentReliability += 1;
+      } else if (isRemoval && currentReliability > 1) {
+        currentReliability -= 1;
+      }
+    } 
+    // Higher/lower votes handling
+    else {
+      if (!isRemoval && currentReliability > 1) {
+        currentReliability -= 2;
+      } else if (isRemoval && currentReliability < 100) {
+        currentReliability += 2;
+      }
+    }
+
+    return currentReliability;
   }
 }

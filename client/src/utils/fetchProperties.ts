@@ -58,7 +58,8 @@ export const fetchProperties = async (filters: FilterState): Promise<{
             status: property.status,
             updatedAt: property.updatedAt,
             numberOfReviews: property.numberOfReviews,
-            dataReliability: property.dataReliability
+            dataReliability: property.dataReliability,
+            votes: property.votes
           },
           geometry: property.geometry
         }))

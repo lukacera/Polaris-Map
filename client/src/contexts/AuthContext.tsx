@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 interface User {
-  sub: string
+  id: string
   email: string
   image: string
 }
