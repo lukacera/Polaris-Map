@@ -29,6 +29,13 @@ export const FiltersSidebar: React.FC<{
     status: status
   });
 
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      status: status
+    }));
+  }, [status]);
+
   const [appliedFilters, setAppliedFilters] = useState<{
     id: string;
     label: string;
@@ -108,19 +115,19 @@ export const FiltersSidebar: React.FC<{
     onFilterChange?.(newFilters);
   };
 
-  const handleBedroomChange = (count: string) => {
-    const updatedrooms = filters.rooms.includes(count)
+  const handleRoomNumChange = (count: string) => {
+    const updatedRooms = filters.rooms.includes(count)
       ? filters.rooms.filter(b => b !== count)
       : [...filters.rooms, count];
     
-    const newFilters = { ...filters, rooms: updatedrooms };
+    const newFilters = { ...filters, rooms: updatedRooms };
     setFilters(newFilters);
     
     if (filters.rooms.includes(count)) {
-      setAppliedFilters(appliedFilters.filter(f => f.id !== `bedroom-${count}`));
+      setAppliedFilters(appliedFilters.filter(f => f.id !== `room-${count}`));
     } else {
       setAppliedFilters([...appliedFilters, {
-        id: `bedroom-${count}`,
+        id: `room-${count}`,
         label: 'Rooms',
         value: count
       }]);
@@ -137,7 +144,7 @@ export const FiltersSidebar: React.FC<{
       case 'type':
         newFilters.propertyTypes = filters.propertyTypes.filter(t => t !== value);
         break;
-      case 'bedroom':
+      case 'room':
         newFilters.rooms = filters.rooms.filter(b => b !== value);
         break;
       case 'price':
@@ -295,13 +302,13 @@ export const FiltersSidebar: React.FC<{
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Bed className="w-5 h-5" />
-              <span>rooms</span>
+              <span>Rooms</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {['Any', '1', '2', '3+'].map(count => (
                 <button
                   key={count}
-                  onClick={() => handleBedroomChange(count)}
+                  onClick={() => handleRoomNumChange(count)}
                   className={`px-3 py-2 text-sm rounded-md transition-colors ${
                     filters.rooms.includes(count)
                       ? 'bg-accent text-white'

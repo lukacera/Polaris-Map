@@ -15,6 +15,7 @@ export class PropertyService {
     const query: any = {};
 
     if (filters) {
+      console.log(filters)
       // Property Type Filter
       if (filters.propertyTypes && filters.propertyTypes.length > 0) {
         query.type = { $in: filters.propertyTypes };
@@ -32,14 +33,22 @@ export class PropertyService {
       }
 
       if (filters.rooms && filters.rooms.length > 0) {
-        if (filters.rooms.includes('Any')) {
+        console.log("rooms filter");
+        console.log(filters.rooms);
+      
+        // Split and flatten the array
+        const splitRooms = filters.rooms.flatMap(item => item.split(','));
+        console.log("splitRooms:", splitRooms);
+      
+        if (splitRooms.includes('Any')) {
           // If 'Any' is selected, don't filter by rooms
-        } else if (filters.rooms.includes('3+')) {
+        } else if (splitRooms.includes('3+')) {
           // Handle "3+" case
-            query.rooms = { $gte: 3 };
+          query.rooms = { $gte: 3 };
         } else {
+          console.log("normal case");
           // Normal case: exact bedroom counts
-          query.rooms = { $in: filters.rooms.map(Number) };
+          query.rooms = { $in: splitRooms.map(Number) };
         }
       }
     }
