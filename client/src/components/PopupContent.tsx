@@ -140,20 +140,27 @@ const PropertyPopup = ({
         </div>
   
         <div className="grid grid-cols-2 gap-4 items-center">
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <p className="text-[10px] sm:text-xs font-medium text-gray-700">Data Reliability</p>
-              <span className="text-[10px] sm:text-xs text-gray-500">{property.numberOfReviews} reviews</span>
+              <p className="text-[10px] sm:text-xs font-medium text-gray-700">
+                Data Reliability
+              </p>
+              <span className="text-[10px] sm:text-xs text-gray-500">
+                {property.numberOfReviews} reviews
+              </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
+
+            <div className="w-full bg-gray-100 rounded-full h-1.5 relative">
               <div
-                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                className="bg-accent-light h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${property.dataReliability}%` }}
               />
+              <span className="absolute top-full mt-1 text-[10px] 
+              sm:text-xs text-gray-700">
+                {property.dataReliability}%
+              </span>
             </div>
-            
           </div>
-  
           <div className="space-y-1 flex flex-col justify-end">
             <div className="flex justify-between items-center mb-1">
               <div className="tooltip">

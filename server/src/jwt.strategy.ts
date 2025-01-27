@@ -6,8 +6,9 @@ import { Model } from 'mongoose';
 import { UserDocument, User } from './schemas/user.schema';
 
 export type JwtPayload = {
-  sub: string;
+  id: string;
   email: string;
+  image: string
 };
 
 @Injectable()
@@ -36,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(req: any, payload: JwtPayload) {
-    const user = await this.userModel.findById(payload.sub).exec();
+    const user = await this.userModel.findById(payload.id).exec();
     
     if (!user) {
       throw new UnauthorizedException('Please log in to continue');
@@ -47,8 +48,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
 
     return {
-      id: payload.sub,
+      id: payload.id,
       email: payload.email,
+      image: payload.image
     };
   }
 }
