@@ -1,13 +1,20 @@
 import { CustomProperty } from '../types/Property';
 import { useAuth } from '../contexts/AuthContext';
 import { submitVote } from '../utils/submitVote';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { CheckCircle, X, XCircle } from 'lucide-react';
 import { deleteVote } from '../utils/deleteVote';
 
 interface PropertyPopupProps {
   property: CustomProperty;
   onClose: () => void;
+  onDelete?: (propertyId: string) => void; 
+  onVoteUpdate: (
+    propertyId: string, 
+    newReliability: number, 
+    newNumberOfReviews: number,
+    newVotes: {userId: string, voteType: VoteType}[]
+  ) => void;
   setIsLoginModalOpen: (isOpen: boolean) => void;
   TIMEOUT: number;
   showNotification: (message: string, type: 'success' | 'error' | 'warning', icon: ReactElement) => void;
@@ -20,20 +27,26 @@ const PropertyPopup = ({
   onClose, 
   setIsLoginModalOpen,
   showNotification,
-  TIMEOUT
+  TIMEOUT,
+  onDelete,
+  onVoteUpdate
 }: PropertyPopupProps) => {
   const { isLoggedIn, user } = useAuth();
-
-  const userId = user?.id
-
-  console.log(user)
-  const votes = property.votes ? JSON.parse(property.votes) : [];
-  const didUserVote = votes.some(vote => vote.userId === userId);
-
-  console.log(votes)
-  // Get the user's vote type if they voted
-  const userVote = votes.find(vote => vote.userId === userId)?.voteType;
+  const userId = user?.id as string;
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [votes, setVotes] = useState<{userId: string, voteType: VoteType}[]>(property.votes ? JSON.parse(property.votes) : []);
+  const [didUserVote, setDidUserVote] = useState(votes.some(vote => vote.userId === userId));
+  const [userVote, setUserVote] = useState(votes.find(vote => vote.userId === userId)?.voteType);
+  const [dataReliability, setDataReliability] = useState<number>(property.dataReliability);
+  const [numberOfReviews, setNumberOfReviews] = useState<number>(property.numberOfReviews);
+
+  useEffect(() => {
+    const parsedVotes: {userId: string, voteType: VoteType}[] = property.votes ? JSON.parse(property.votes) : [];
+    setVotes(parsedVotes);
+    setDidUserVote(parsedVotes.some(vote => vote.userId === userId));
+    setUserVote(parsedVotes.find(vote => vote.userId === userId)?.voteType);
+  }, [property.votes, userId]);
 
   const handleVoteClick = async (voteType: VoteType) => {
     if (!isLoggedIn) {
@@ -47,16 +60,34 @@ const PropertyPopup = ({
       const response = await submitVote(property.id, voteType);
       
       if (response.success) {
+        // Calculate new reliability
+        let newReliability = property.dataReliability;
+        if (voteType === 'equal' && newReliability < 100) {
+          newReliability += 1;
+        } else if (voteType !== 'equal' && newReliability > 1) {
+          newReliability -= 2;
+        }
+  
+        // Check if property should be deleted
+        if (newReliability <= 0 && (voteType === 'higher' || voteType === 'lower')) {
+          onDelete?.(property.id); // Call the deletion callback
+          showNotification('Property has been removed due to low reliability', 'warning', <XCircle />);
+          return;
+        }
+  
+        // If not deleting, proceed with normal vote
+        const newVote = { userId, voteType };
+        const newVotes = [...votes, newVote];
+        setVotes(newVotes);
+        setDidUserVote(true);
+        setUserVote(voteType);
+        setDataReliability(newReliability);
+        const newNumberOfReviews = numberOfReviews + 1;
+        setNumberOfReviews(newNumberOfReviews);
+        onVoteUpdate(property.id, newReliability, newNumberOfReviews, newVotes);
         showNotification('Vote submitted successfully!', 'success', <CheckCircle />);
         return;
       }
-      
-      if (response.alreadyVotedError) {
-        showNotification('You have already voted for this property', 'warning', <XCircle />);
-        return;
-      }
-  
-      showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
     } catch (error) {
       console.error(error);
       showNotification('Failed to submit vote. Please try again.', 'error', <XCircle />);
@@ -79,10 +110,26 @@ const PropertyPopup = ({
       const response = await deleteVote(property.id);
       
       if (response.success) {
+        const newVotes = votes.filter(vote => vote.userId !== userId);
+        setVotes(newVotes);
+        setDidUserVote(false);
+        setUserVote(undefined);
+        
+        let newReliability = dataReliability;
+        if (userVote === 'equal' && newReliability > 1) {
+          newReliability -= 1;
+        } else if (userVote !== 'equal' && newReliability < 100) {
+          newReliability += 2;
+        }
+        
+        setDataReliability(newReliability);
+        const newNumberOfReviews = numberOfReviews - 1;
+        setNumberOfReviews(newNumberOfReviews);
+        onVoteUpdate(property.id, newReliability, newNumberOfReviews, newVotes);
         showNotification('Vote removed successfully!', 'success', <CheckCircle />);
         return;
       }
-  
+
       showNotification('Failed to remove vote. Please try again.', 'error', <XCircle />);
     } catch (error) {
       console.error(error);
@@ -146,21 +193,22 @@ const PropertyPopup = ({
                 Data Reliability
               </p>
               <span className="text-[10px] sm:text-xs text-gray-500">
-                {property.numberOfReviews} reviews
+                {numberOfReviews} {numberOfReviews === 1 ? 'review' : 'reviews'}
               </span>
             </div>
 
             <div className="w-full bg-gray-100 rounded-full h-1.5 relative">
               <div
                 className="bg-accent-light h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${property.dataReliability}%` }}
+                style={{ width: `${dataReliability}%` }}
               />
               <span className="absolute top-full mt-1 text-[10px] 
               sm:text-xs text-gray-700">
-                {property.dataReliability}%
+                {dataReliability}%
               </span>
             </div>
           </div>
+  
           <div className="space-y-1 flex flex-col justify-end">
             <div className="flex justify-between items-center mb-1">
               <div className="tooltip">
@@ -231,15 +279,14 @@ const PropertyPopup = ({
               <p className="text-[10px] sm:text-xs text-gray-500">Your vote:</p>
               <p className="text-xs font-medium text-gray-900">
                 You voted that this price seems:
-                <span className='font-medium text-red-500 ml-1'>Lower</span>
+                <span className='font-medium text-red-500 ml-1'>{userVote}</span>
               </p>
             </div>
             <button 
               onClick={() => handleDeleteVote()}
               className="text-xs px-3 py-1.5 border border-gray-200 
               rounded text-surface hover:bg-gray-50 hover:text-surface-hover 
-              hover:border-surface-border transition-all duration-200 flex items-center gap-1
-              "
+              hover:border-surface-border transition-all duration-200 flex items-center gap-1"
             >
               <X size={15}/>
               Remove my vote

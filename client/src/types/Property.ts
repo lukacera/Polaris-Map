@@ -13,10 +13,7 @@ export type Property = {
     yearBuilt: number;
     dataReliability: number;
     numberOfReviews: number;
-    votes: {
-      userId: string;
-      voteType: 'higher' | 'lower' | "equal";
-    }[] | [];
+    votes: string // They are stringified arrays
 
     updatedAt: string; 
     createdAt: string; 

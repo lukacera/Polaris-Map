@@ -21,7 +21,6 @@ export const FiltersSidebar: React.FC<{
   
   const [isLoading, setIsLoading] = useState(true);
   
-  console.log("reload the page")
   const [filters, setFilters] = useState<FilterState>({
     propertyTypes: [],
     minPrice: 0,

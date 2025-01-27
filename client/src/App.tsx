@@ -268,6 +268,34 @@ function App() {
             <PropertyPopup
               property={props}
               onClose={() => popup.remove()}
+              onDelete={(propertyId) => {
+                setProperties(prev => ({
+                  type: 'FeatureCollection',
+                  features: prev.features.filter(feature => 
+                    feature.properties?.id !== propertyId
+                  )
+                }));
+                popup.remove();              
+              }}
+              onVoteUpdate={(propertyId, newReliability, newNumberOfReviews, newVotes) => {
+                setProperties(prev => ({
+                  type: 'FeatureCollection',
+                  features: prev.features.map(feature => {
+                    if (feature.properties?.id === propertyId) {
+                      return {
+                        ...feature,
+                        properties: {
+                          ...feature.properties,
+                          dataReliability: newReliability,
+                          numberOfReviews: newNumberOfReviews,
+                          votes: JSON.stringify(newVotes)
+                        }
+                      };
+                    }
+                    return feature;
+                  })
+                }));
+              }}
               setIsLoginModalOpen={setIsLoginModalOpen}
               showNotification={showNotification}
               TIMEOUT={TIMEOUT}
