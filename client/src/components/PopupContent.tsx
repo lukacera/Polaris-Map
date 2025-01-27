@@ -279,7 +279,11 @@ const PropertyPopup = ({
               <p className="text-[10px] sm:text-xs text-gray-500">Your vote:</p>
               <p className="text-xs font-medium text-gray-900">
                 You voted that this price seems:
-                <span className='font-medium text-red-500 ml-1'>{userVote}</span>
+                <span className={`font-medium text-red-500 ml-1
+                  ${userVote === 'lower' ? 'text-red-500' : 
+                  userVote === 'higher' ? "text-green-500" : "text-yellow-500"}'}`}>
+                  {userVote}
+                </span>
               </p>
             </div>
             <button 
